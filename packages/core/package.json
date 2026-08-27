@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./config": "./src/config/index.ts"
+    "./config": "./src/config/index.ts",
+    "./github": "./src/github/index.ts"
   },
   "dependencies": {
+    "octokit": "^5.0.5",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   }

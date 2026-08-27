@@ -113,6 +113,13 @@ update:
         },
       });
     });
+
+    it.each(['sections: {}', 'animation: {}', 'update: {}'] as const)(
+      'fills nested defaults for %s',
+      (yaml) => {
+        expect(parseProfileConfig(yaml)).toEqual(expectedDefaults);
+      },
+    );
   });
 
   describe('valid frequencies', () => {
@@ -167,6 +174,23 @@ animation:
 `),
       ).toThrowError(/Invalid profile config:.*animation\.enabled/s);
     });
+
+    it('rejects YAML 1.2 unquoted yes as a boolean', () => {
+      expect(() =>
+        parseProfileConfig(`
+sections:
+  stars: yes
+`),
+      ).toThrowError(/Invalid profile config:.*sections\.stars/s);
+    });
+
+    it('rejects a numeric theme', () => {
+      expect(() =>
+        parseProfileConfig(`
+theme: 1
+`),
+      ).toThrowError(/Invalid profile config:.*theme/s);
+    });
   });
 
   describe('unknown properties', () => {
@@ -185,6 +209,24 @@ sections:
 unknownOption: true
 `),
       ).toThrowError(/Invalid profile config:/);
+    });
+
+    it('rejects an unknown animation option', () => {
+      expect(() =>
+        parseProfileConfig(`
+animation:
+  bounce: true
+`),
+      ).toThrowError(/Invalid profile config:.*animation/s);
+    });
+
+    it('rejects an unknown update option', () => {
+      expect(() =>
+        parseProfileConfig(`
+update:
+  cron: daily
+`),
+      ).toThrowError(/Invalid profile config:.*update/s);
     });
   });
 
@@ -219,6 +261,20 @@ animation:
       );
     });
 
+    it('rejects a root number', () => {
+      expect(() => parseProfileConfig('42\n')).toThrowError(
+        /^Invalid profile config:/,
+      );
+    });
+
+    it('rejects nested null in place of an object', () => {
+      expect(() =>
+        parseProfileConfig(`
+sections: null
+`),
+      ).toThrowError(/Invalid profile config:.*sections/s);
+    });
+
     it('rejects syntactically invalid YAML', () => {
       expect(() => parseProfileConfig('sections: [\n')).toThrowError(
         /^Invalid YAML:/,
@@ -235,6 +291,15 @@ sections:
 `).sections.repos,
       ).toBe(false);
     });
+
+    it('keeps an explicit animation.enabled false', () => {
+      expect(
+        parseProfileConfig(`
+animation:
+  enabled: false
+`).animation.enabled,
+      ).toBe(false);
+    });
   });
 
   describe('shared defaults', () => {
@@ -247,6 +312,15 @@ sections:
 
       expect(defaultProfileConfig).toEqual(expectedDefaults);
       expect(parseProfileConfig('').sections.repos).toBe(true);
+    });
+
+    it('does not reuse nested objects from defaultProfileConfig', () => {
+      const parsed = parseProfileConfig('');
+
+      expect(parsed).not.toBe(defaultProfileConfig);
+      expect(parsed.sections).not.toBe(defaultProfileConfig.sections);
+      expect(parsed.animation).not.toBe(defaultProfileConfig.animation);
+      expect(parsed.update).not.toBe(defaultProfileConfig.update);
     });
   });
 });

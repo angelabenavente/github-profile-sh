@@ -32,3 +32,11 @@ export type ContributionDay = {
   date: string;
   count: number;
 };
+
+export type RepositoryLanguages = Record<string, number>;
+
+export type LanguageStat = {
+  name: string;
+  bytes: number;
+  percentage: number;
+};

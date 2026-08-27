@@ -1,42 +1,52 @@
 import { z } from 'zod';
 
+const defaultSections = {
+  repos: true,
+  stars: true,
+  streak: true,
+  codeChanges: true,
+  languages: true,
+} as const;
+
+const defaultAnimation = {
+  enabled: true,
+  mode: 'typing',
+} as const;
+
+const defaultUpdate = {
+  frequency: 'daily',
+} as const;
+
 export const profileConfigSchema = z
   .object({
     sections: z
       .object({
-        repos: z.boolean(),
-        stars: z.boolean(),
-        streak: z.boolean(),
-        codeChanges: z.boolean(),
-        languages: z.boolean(),
+        repos: z.boolean().default(defaultSections.repos),
+        stars: z.boolean().default(defaultSections.stars),
+        streak: z.boolean().default(defaultSections.streak),
+        codeChanges: z.boolean().default(defaultSections.codeChanges),
+        languages: z.boolean().default(defaultSections.languages),
       })
       .strict()
-      .default({
-        repos: true,
-        stars: true,
-        streak: true,
-        codeChanges: true,
-        languages: true,
-      }),
+      .default(defaultSections),
     theme: z.string().default('dark'),
     animation: z
       .object({
-        enabled: z.boolean(),
-        mode: z.enum(['typing', 'sequential', 'none']),
+        enabled: z.boolean().default(defaultAnimation.enabled),
+        mode: z
+          .enum(['typing', 'sequential', 'none'])
+          .default(defaultAnimation.mode),
       })
       .strict()
-      .default({
-        enabled: true,
-        mode: 'typing',
-      }),
+      .default(defaultAnimation),
     update: z
       .object({
-        frequency: z.enum(['12h', 'daily', 'weekly', 'monthly', 'manual']),
+        frequency: z
+          .enum(['12h', 'daily', 'weekly', 'monthly', 'manual'])
+          .default(defaultUpdate.frequency),
       })
       .strict()
-      .default({
-        frequency: 'daily',
-      }),
+      .default(defaultUpdate),
   })
   .strict();
 

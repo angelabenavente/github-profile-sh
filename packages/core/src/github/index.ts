@@ -4,7 +4,9 @@ export {
   calculateTotalStars,
   fetchPublicRepositories,
 } from './repositories.js';
+export { calculateCurrentStreak } from './streak.js';
 export type {
+  ContributionDay,
   GitHubClient,
   GitHubClientOptions,
   GitHubProfile,

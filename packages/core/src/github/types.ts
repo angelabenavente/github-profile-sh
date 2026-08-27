@@ -27,3 +27,8 @@ export type PublicRepository = {
   archived: boolean;
   repoUrl: string;
 };
+
+export type ContributionDay = {
+  date: string;
+  count: number;
+};

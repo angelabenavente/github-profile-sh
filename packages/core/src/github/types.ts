@@ -16,3 +16,14 @@ export type GitHubProfile = {
   createdAt: string;
   profileUrl: string;
 };
+
+export type PublicRepository = {
+  name: string;
+  fullName: string;
+  stars: number;
+  forks: number;
+  language: string | null;
+  isFork: boolean;
+  archived: boolean;
+  repoUrl: string;
+};

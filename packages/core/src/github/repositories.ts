@@ -1,4 +1,5 @@
 import type { PublicRepository } from './types.js';
+import { normalizeGitHubUsername } from './username.js';
 
 type GitHubRepositoryResponse = {
   name: string;
@@ -33,12 +34,6 @@ type GitHubRepositoriesClient = {
   };
 };
 
-function assertGitHubUsername(username: string): void {
-  if (username.trim() === '') {
-    throw new Error('Invalid GitHub username: expected a non-empty string');
-  }
-}
-
 function toPublicRepository(repo: GitHubRepositoryResponse): PublicRepository {
   return {
     name: repo.name,
@@ -56,10 +51,10 @@ export async function fetchPublicRepositories(
   client: GitHubRepositoriesClient,
   username: string,
 ): Promise<PublicRepository[]> {
-  assertGitHubUsername(username);
+  const normalizedUsername = normalizeGitHubUsername(username);
 
   const repositories = await client.paginate(client.rest.repos.listForUser, {
-    username,
+    username: normalizedUsername,
     per_page: 100,
     type: 'owner',
   });

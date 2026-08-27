@@ -81,6 +81,14 @@ describe('fetchPublicRepositories', () => {
     });
   });
 
+  it('returns an empty list when the user has no public repositories', async () => {
+    const paginate = vi.fn().mockResolvedValue([]);
+
+    await expect(
+      fetchPublicRepositories(createFakeClient(paginate), 'octocat'),
+    ).resolves.toEqual([]);
+  });
+
   it('maps every repository in the response', async () => {
     const paginate = vi.fn().mockResolvedValue([
       githubRepo({
@@ -167,6 +175,58 @@ describe('fetchPublicRepositories', () => {
     ]);
   });
 
+  it('maps a repository with 0 stars', async () => {
+    const paginate = vi
+      .fn()
+      .mockResolvedValue([githubRepo({ stargazers_count: 0 })]);
+
+    await expect(
+      fetchPublicRepositories(createFakeClient(paginate), 'octocat'),
+    ).resolves.toMatchObject([{ stars: 0 }]);
+  });
+
+  it('keeps large star counts as numbers', async () => {
+    const paginate = vi
+      .fn()
+      .mockResolvedValue([githubRepo({ stargazers_count: 1_800_000 })]);
+
+    await expect(
+      fetchPublicRepositories(createFakeClient(paginate), 'octocat'),
+    ).resolves.toMatchObject([{ stars: 1_800_000 }]);
+  });
+
+  it('preserves special characters in repository names', async () => {
+    const paginate = vi.fn().mockResolvedValue([
+      githubRepo({
+        name: '.github',
+        full_name: 'octocat/.github',
+        html_url: 'https://github.com/octocat/.github',
+      }),
+    ]);
+
+    await expect(
+      fetchPublicRepositories(createFakeClient(paginate), 'octocat'),
+    ).resolves.toMatchObject([
+      {
+        name: '.github',
+        fullName: 'octocat/.github',
+        repoUrl: 'https://github.com/octocat/.github',
+      },
+    ]);
+  });
+
+  it('trims surrounding whitespace before requesting repositories', async () => {
+    const paginate = vi.fn().mockResolvedValue([helloWorld]);
+
+    await fetchPublicRepositories(createFakeClient(paginate), ' octocat ');
+
+    expect(paginate).toHaveBeenCalledWith(expect.any(Function), {
+      username: 'octocat',
+      per_page: 100,
+      type: 'owner',
+    });
+  });
+
   it('includes archived repositories', async () => {
     const paginate = vi.fn().mockResolvedValue([
       githubRepo({
@@ -195,8 +255,11 @@ describe('fetchPublicRepositories', () => {
     },
   );
 
-  it('propagates API errors from the client', async () => {
-    const apiError = new Error('API rate limit exceeded');
+  it.each([
+    [Object.assign(new Error('Not Found'), { status: 404 })],
+    [Object.assign(new Error('API rate limit exceeded'), { status: 403 })],
+    [new Error('GitHub API is unavailable')],
+  ])('propagates $message from the client', async (apiError) => {
     const paginate = vi.fn().mockRejectedValue(apiError);
 
     await expect(
@@ -246,5 +309,12 @@ describe('calculateTotalStars', () => {
 
   it('treats repositories with 0 stars as zero, not missing', () => {
     expect(calculateTotalStars([repo(0), repo(5), repo(0)])).toBe(5);
+  });
+
+  it.each([
+    [[0, 0, 0], 0],
+    [[100, 250, 0], 350],
+  ] as const)('sums %j as %s', (stars, total) => {
+    expect(calculateTotalStars(stars.map((count) => repo(count)))).toBe(total);
   });
 });

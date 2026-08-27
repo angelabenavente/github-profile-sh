@@ -1,4 +1,5 @@
 import type { GitHubProfile } from './types.js';
+import { normalizeGitHubUsername } from './username.js';
 
 type GitHubProfileResponse = {
   login: string;
@@ -25,11 +26,10 @@ export async function fetchGitHubProfile(
   client: GitHubProfileClient,
   username: string,
 ): Promise<GitHubProfile> {
-  if (username.trim() === '') {
-    throw new Error('Invalid GitHub username: expected a non-empty string');
-  }
-
-  const { data } = await client.rest.users.getByUsername({ username });
+  const normalizedUsername = normalizeGitHubUsername(username);
+  const { data } = await client.rest.users.getByUsername({
+    username: normalizedUsername,
+  });
 
   return {
     username: data.login,

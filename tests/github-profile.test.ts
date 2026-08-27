@@ -59,12 +59,45 @@ describe('fetchGitHubProfile', () => {
     });
 
     await expect(
-      fetchGitHubProfile(createFakeClient(getByUsername), 'OCTOCAT'),
+      fetchGitHubProfile(createFakeClient(getByUsername), 'OctoCat'),
     ).resolves.toMatchObject({
       username: 'Octocat',
     });
 
-    expect(getByUsername).toHaveBeenCalledWith({ username: 'OCTOCAT' });
+    expect(getByUsername).toHaveBeenCalledWith({ username: 'OctoCat' });
+  });
+
+  it('trims surrounding whitespace before requesting the user', async () => {
+    const getByUsername = vi.fn().mockResolvedValue({ data: publicUser });
+
+    await expect(
+      fetchGitHubProfile(createFakeClient(getByUsername), ' octocat '),
+    ).resolves.toMatchObject({
+      username: 'octocat',
+    });
+
+    expect(getByUsername).toHaveBeenCalledWith({ username: 'octocat' });
+  });
+
+  it('maps a new account with empty public stats', async () => {
+    const getByUsername = vi.fn().mockResolvedValue({
+      data: {
+        ...publicUser,
+        public_repos: 0,
+        followers: 0,
+        following: 0,
+        created_at: '2026-08-27T18:00:00Z',
+      },
+    });
+
+    await expect(
+      fetchGitHubProfile(createFakeClient(getByUsername), 'octocat'),
+    ).resolves.toMatchObject({
+      publicRepos: 0,
+      followers: 0,
+      following: 0,
+      createdAt: '2026-08-27T18:00:00Z',
+    });
   });
 
   it('maps public_repos to publicRepos', async () => {
@@ -114,8 +147,11 @@ describe('fetchGitHubProfile', () => {
     },
   );
 
-  it('propagates API errors from the client', async () => {
-    const apiError = new Error('Not Found');
+  it.each([
+    [Object.assign(new Error('Not Found'), { status: 404 })],
+    [Object.assign(new Error('API rate limit exceeded'), { status: 403 })],
+    [new Error('GitHub API is unavailable')],
+  ])('propagates $message from the client', async (apiError) => {
     const getByUsername = vi.fn().mockRejectedValue(apiError);
 
     await expect(

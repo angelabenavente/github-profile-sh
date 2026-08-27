@@ -1,0 +1,11 @@
+{
+  "name": "@github-profile-sh/core",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./config": "./src/config/index.ts"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

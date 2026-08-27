@@ -1,2 +1,7 @@
 export { createGitHubClient } from './client.js';
-export type { GitHubClient, GitHubClientOptions } from './types.js';
+export { fetchGitHubProfile } from './profile.js';
+export type {
+  GitHubClient,
+  GitHubClientOptions,
+  GitHubProfile,
+} from './types.js';

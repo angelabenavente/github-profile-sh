@@ -3,12 +3,15 @@ import type { TerminalLine, TerminalOutput } from '../terminal/types.js';
 
 import { escapeXml } from './escape.js';
 import {
+  commandTextX,
   fontFamily,
+  languageBarX,
+  languagePercentX,
   layout,
-  lineBaseline,
+  measureTerminalLayout,
   palette,
-  svgHeight,
 } from './layout.js';
+import { truncateLanguageName } from './text.js';
 
 function renderStyle(): string {
   return `<style>
@@ -19,7 +22,7 @@ function renderStyle(): string {
     }
     .fg { fill: ${palette.foreground}; }
     .muted { fill: ${palette.muted}; }
-    .dots { fill: ${palette.dots}; }
+    .dots { fill: ${palette.muted}; fill-opacity: 0.55; }
     .accent { fill: ${palette.accent}; }
     .track { fill: ${palette.track}; }
     .bar { fill: ${palette.accent}; }
@@ -36,16 +39,17 @@ function text(
   y: number,
   className: string,
   content: string,
+  extras = '',
 ): string {
-  return `<text x="${String(x)}" y="${String(y)}" class="${className}" dominant-baseline="middle">${escapeXml(content)}</text>`;
+  return `<text x="${String(x)}" y="${String(y)}" class="${className}" dominant-baseline="middle"${extras}>${escapeXml(content)}</text>`;
 }
 
 function renderCommand(
   line: Extract<TerminalLine, { type: 'command' }>,
   y: number,
 ): string {
-  const prompt = `<text x="${String(layout.paddingX)}" y="${String(y)}" class="accent" dominant-baseline="middle">${escapeXml(line.prompt)}</text>`;
-  const command = `<text x="${String(layout.paddingX + 16)}" y="${String(y)}" class="fg" dominant-baseline="middle">${escapeXml(line.text)}</text>`;
+  const prompt = text(layout.paddingX, y, 'accent', line.prompt);
+  const command = text(commandTextX(), y, 'fg', line.text);
 
   return `${prompt}${command}`;
 }
@@ -54,7 +58,11 @@ function renderMetric(
   line: Extract<TerminalLine, { type: 'metric' }>,
   y: number,
 ): string {
-  const formatted = formatMetricLine(line.label, line.value);
+  const formatted = formatMetricLine(
+    line.label,
+    line.value,
+    layout.metricLineWidth,
+  );
   const dots = formatted.slice(
     line.label.length,
     formatted.length - line.value.length,
@@ -63,25 +71,38 @@ function renderMetric(
   return `<text x="${String(layout.paddingX)}" y="${String(y)}" dominant-baseline="middle"><tspan class="fg">${escapeXml(line.label)}</tspan><tspan class="dots">${escapeXml(dots)}</tspan><tspan class="fg">${escapeXml(line.value)}</tspan></text>`;
 }
 
+function languageFillWidth(percentage: number): number {
+  return Math.round(
+    (layout.languageBarWidth * Math.min(Math.max(percentage, 0), 100)) / 100,
+  );
+}
+
 function renderLanguage(
   line: Extract<TerminalLine, { type: 'language' }>,
   y: number,
 ): string {
-  const barX = layout.paddingX + layout.languageNameWidth;
+  const barX = languageBarX();
   const barY = y - layout.languageBarHeight / 2;
-  const fillWidth = Math.round(
-    (layout.languageBarWidth * Math.min(Math.max(line.percentage, 0), 100)) /
-      100,
+  const fillWidth = languageFillWidth(line.percentage);
+  const radius = layout.languageBarRadius;
+  const displayName = truncateLanguageName(
+    line.name,
+    layout.languageNameMaxChars,
   );
-  const percentX = barX + layout.languageBarWidth + layout.languagePercentGap;
 
-  const name = text(layout.paddingX, y, 'fg', line.name);
-  const track = `<rect class="track" x="${String(barX)}" y="${String(barY)}" width="${String(layout.languageBarWidth)}" height="${String(layout.languageBarHeight)}" rx="2"/>`;
+  const name = text(layout.paddingX, y, 'fg', displayName);
+  const track = `<rect class="track" x="${String(barX)}" y="${String(barY)}" width="${String(layout.languageBarWidth)}" height="${String(layout.languageBarHeight)}" rx="${String(radius)}"/>`;
   const bar =
     fillWidth === 0
       ? ''
-      : `<rect class="bar" x="${String(barX)}" y="${String(barY)}" width="${String(fillWidth)}" height="${String(layout.languageBarHeight)}" rx="2"/>`;
-  const percent = text(percentX, y, 'muted', `${String(line.percentage)}%`);
+      : `<rect class="bar" x="${String(barX)}" y="${String(barY)}" width="${String(fillWidth)}" height="${String(layout.languageBarHeight)}" rx="${String(radius)}"/>`;
+  const percent = text(
+    languagePercentX(),
+    y,
+    'muted',
+    `${String(line.percentage)}%`,
+    ' text-anchor="end"',
+  );
 
   return `${name}${track}${bar}${percent}`;
 }
@@ -91,16 +112,14 @@ function renderPrompt(
   y: number,
 ): string {
   const prompt = text(layout.paddingX, y, 'accent', line.prompt);
-  const cursorX = layout.paddingX + layout.cursorGap;
+  const cursorX = commandTextX();
   const cursorY = y - layout.cursorHeight / 2;
   const cursor = `<rect class="cursor" x="${String(cursorX)}" y="${String(cursorY)}" width="${String(layout.cursorWidth)}" height="${String(layout.cursorHeight)}"/>`;
 
   return `${prompt}${cursor}`;
 }
 
-function renderLine(line: TerminalLine, index: number): string {
-  const y = lineBaseline(index);
-
+function renderLine(line: TerminalLine, y: number): string {
   switch (line.type) {
     case 'command':
       return renderCommand(line, y);
@@ -123,9 +142,9 @@ const svgDescription =
   'Public GitHub profile statistics shown as a terminal session.';
 
 export function renderTerminalSvg(output: TerminalOutput): string {
-  const height = svgHeight(output.lines.length);
+  const { height, baselines } = measureTerminalLayout(output.lines);
   const body = output.lines
-    .map((line, index) => renderLine(line, index))
+    .map((line, index) => renderLine(line, baselines[index] ?? 0))
     .filter((fragment) => fragment !== '')
     .join('');
 

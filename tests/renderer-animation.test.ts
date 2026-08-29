@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   commandCharacterSteps,
   createAnimationTimeline,
+  finalCursorBlink,
   typingCursorHideMs,
   type AnimationConfig,
 } from '../packages/core/src/animation/index.js';
@@ -60,7 +61,7 @@ describe('renderTerminalSvg animation', () => {
     const command = groupBlock(svg, 'line-command');
     const loading = groupBlock(svg, 'line-status');
 
-    expect(svg.match(/<animate /g)).toHaveLength(11);
+    expect(svg.match(/<animate /g)).toHaveLength(12);
     expect(svg.match(/<g id="language-\d+"/g)).toHaveLength(3);
     expect(command).toContain('github-profile.sh');
     expect(command).not.toContain('fetching public profile data...');
@@ -71,7 +72,6 @@ describe('renderTerminalSvg animation', () => {
       timeline.steps.find((step) => step.type === 'lineReveal')?.startMs,
     );
     expect(svg).toContain('fill="freeze"');
-    expect(svg).not.toContain('repeatCount="indefinite"');
     expect(svg).not.toContain('repeatDur');
     expect(svg).not.toContain('@keyframes');
   });
@@ -161,7 +161,6 @@ describe('renderTerminalSvg animation', () => {
       (characters.at(-1)?.startMs ?? 0) + (characters.at(-1)?.durationMs ?? 0),
     );
     expect(renderWith(typing)).toBe(svg);
-    expect(svg).not.toContain('repeatCount="indefinite"');
     expect(svg).not.toContain('<script');
   });
 
@@ -177,13 +176,44 @@ describe('renderTerminalSvg animation', () => {
     expect(noneSvg).not.toContain('<animate');
   });
 
-  it('keeps the cursor static and the document self-contained', () => {
-    const svg = renderWith(sequential);
-    const prompt = groupBlock(svg, 'line-prompt');
+  it('blinks only the final cursor after the prompt appears', () => {
+    const disabled: AnimationConfig = { enabled: false, mode: 'typing' };
 
-    expect(prompt).toContain('class="cursor"');
-    expect(prompt).not.toContain('values="');
-    expect(svg).not.toContain('attributeName="visibility"');
+    for (const animation of [typing, sequential] as const) {
+      const timeline = createAnimationTimeline(completeOutput, animation);
+      const svg = renderTerminalSvg(completeOutput, { timeline });
+      const blink = finalCursorBlink(timeline);
+      const cursor = /id="final-cursor"[\s\S]*?<\/rect>/.exec(svg)?.[0] ?? '';
+      const typingCursor =
+        /id="command-cursor"[\s\S]*?<\/rect>/.exec(svg)?.[0] ?? '';
+      const indefinite = [
+        ...svg.matchAll(/<animate[^>]*repeatCount="indefinite"[^>]*>/g),
+      ];
+
+      expect(blink).toBeDefined();
+      expect(cursor).toContain('class="cursor"');
+      expect(cursor).toContain('repeatCount="indefinite"');
+      expect(cursor).toContain(`begin="${String(blink?.startMs)}ms"`);
+      expect(cursor).toContain(
+        `dur="${String((blink?.intervalMs ?? 0) * 2)}ms"`,
+      );
+      expect(blink?.startMs).toBeGreaterThan(
+        timeline.steps.find((step) => step.type === 'finalPrompt')?.startMs ??
+          -1,
+      );
+      expect(indefinite).toHaveLength(1);
+      expect(typingCursor).not.toContain('repeatCount="indefinite"');
+      expect(renderTerminalSvg(completeOutput, { timeline })).toBe(svg);
+    }
+
+    expect(renderWith(none)).not.toContain('repeatCount="indefinite"');
+    expect(renderWith(disabled)).not.toContain('repeatCount="indefinite"');
+    expect(renderWith(disabled)).not.toContain('<animate');
+  });
+
+  it('keeps the document self-contained', () => {
+    const svg = renderWith(sequential);
+
     expect(svg).not.toContain('<animateTransform');
     expect(svg).not.toContain('<script');
     expect(svg).not.toContain('href="http');
@@ -191,7 +221,6 @@ describe('renderTerminalSvg animation', () => {
     expect(svg).not.toContain('<foreignObject');
     expect(svg).toContain('role="img"');
     expect(svg).toContain('<title>github-profile.sh</title>');
-    expect(renderWith(sequential)).toBe(svg);
     expect(svg).toContain('id="metric-0"');
     expect(svg).toContain('id="language-0"');
   });

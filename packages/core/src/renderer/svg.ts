@@ -1,9 +1,11 @@
 import {
   commandCharacterSteps,
+  finalCursorBlink,
   lineRevealSchedule,
   typingCursorHideMs,
   type AnimationTimeline,
   type CommandCharacterStep,
+  type CursorBlinkStep,
   type LineReveal,
 } from '../animation/index.js';
 import { formatMetricLine } from '../terminal/format.js';
@@ -155,14 +157,19 @@ function renderLanguage(
   return `${name}${track}${bar}${percent}`;
 }
 
+function renderCursorBlink(blink: CursorBlinkStep): string {
+  return `<animate attributeName="opacity" values="1;0" keyTimes="0;0.5" calcMode="discrete" begin="${smilMs(blink.startMs)}" dur="${smilMs(blink.intervalMs * 2)}" repeatCount="indefinite"/>`;
+}
+
 function renderPrompt(
   line: Extract<TerminalLine, { type: 'prompt' }>,
   y: number,
+  blink: CursorBlinkStep | undefined,
 ): string {
   const prompt = text(layout.paddingX, y, 'accent', line.prompt);
   const cursorX = commandTextX();
   const cursorY = y - layout.cursorHeight / 2;
-  const cursor = `<rect class="cursor" x="${String(cursorX)}" y="${String(cursorY)}" width="${String(layout.cursorWidth)}" height="${String(layout.cursorHeight)}"/>`;
+  const cursor = `<rect id="final-cursor" class="cursor" x="${String(cursorX)}" y="${String(cursorY)}" width="${String(layout.cursorWidth)}" height="${String(layout.cursorHeight)}">${blink === undefined ? '' : renderCursorBlink(blink)}</rect>`;
 
   return `${prompt}${cursor}`;
 }
@@ -215,7 +222,11 @@ function wrapAnimatedLine(
   return `<g id="${escapeXml(id)}" opacity="1">${renderOpacityReveal(reveal)}${content}</g>`;
 }
 
-function renderLine(line: TerminalLine, y: number): string {
+function renderLine(
+  line: TerminalLine,
+  y: number,
+  blink: CursorBlinkStep | undefined,
+): string {
   switch (line.type) {
     case 'command':
       return renderCommand(line, y);
@@ -228,7 +239,7 @@ function renderLine(line: TerminalLine, y: number): string {
     case 'language':
       return renderLanguage(line, y);
     case 'prompt':
-      return renderPrompt(line, y);
+      return renderPrompt(line, y, blink);
     case 'blank':
       return '';
   }
@@ -254,6 +265,7 @@ export function renderTerminalSvg(
   const hideTypingCursorAtMs = timeline
     ? typingCursorHideMs(timeline)
     : undefined;
+  const blink = timeline ? finalCursorBlink(timeline) : undefined;
   const counters = { metric: 0, language: 0 };
   const body = output.lines
     .map((line, index) => {
@@ -273,7 +285,7 @@ export function renderTerminalSvg(
 
       return wrapAnimatedLine(
         lineGroupId(line, counters),
-        renderLine(line, y),
+        renderLine(line, y, blink),
         reveals.get(index),
       );
     })

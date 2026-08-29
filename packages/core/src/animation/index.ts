@@ -1,5 +1,6 @@
 export {
   commandCharacterSteps,
+  finalCursorBlink,
   lineRevealSchedule,
   typingCursorHideMs,
 } from './schedule.js';

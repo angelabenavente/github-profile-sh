@@ -1,4 +1,8 @@
-import type { AnimationTimeline, CommandCharacterStep } from './types.js';
+import type {
+  AnimationTimeline,
+  CommandCharacterStep,
+  CursorBlinkStep,
+} from './types.js';
 
 export type LineReveal = {
   startMs: number;
@@ -32,6 +36,18 @@ export function typingCursorHideMs(
   );
 
   return next?.startMs;
+}
+
+export function finalCursorBlink(
+  timeline: AnimationTimeline,
+): CursorBlinkStep | undefined {
+  if (timeline.mode === 'none') {
+    return undefined;
+  }
+
+  return timeline.steps.find(
+    (step): step is CursorBlinkStep => step.type === 'cursorBlink',
+  );
 }
 
 export function lineRevealSchedule(

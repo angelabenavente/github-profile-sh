@@ -1,6 +1,9 @@
 import {
+  commandCharacterSteps,
   lineRevealSchedule,
+  typingCursorHideMs,
   type AnimationTimeline,
+  type CommandCharacterStep,
   type LineReveal,
 } from '../animation/index.js';
 import { formatMetricLine } from '../terminal/format.js';
@@ -32,6 +35,7 @@ function renderStyle(): string {
     .track { fill: ${palette.track}; }
     .bar { fill: ${palette.accent}; }
     .cursor { fill: ${palette.foreground}; }
+    .command-cursor { fill: ${palette.accent}; }
   </style>`;
 }
 
@@ -49,6 +53,10 @@ function text(
   return `<text x="${String(x)}" y="${String(y)}" class="${className}" dominant-baseline="middle"${extras}>${escapeXml(content)}</text>`;
 }
 
+function commandCharX(charIndex: number): number {
+  return commandTextX() + charIndex * layout.charWidth;
+}
+
 function renderCommand(
   line: Extract<TerminalLine, { type: 'command' }>,
   y: number,
@@ -57,6 +65,41 @@ function renderCommand(
   const command = text(commandTextX(), y, 'fg', line.text);
 
   return `${prompt}${command}`;
+}
+
+function renderTypedCommand(
+  line: Extract<TerminalLine, { type: 'command' }>,
+  y: number,
+  characters: CommandCharacterStep[],
+  hideCursorAtMs: number | undefined,
+): string {
+  const prompt = text(layout.paddingX, y, 'accent', line.prompt);
+  const glyphs = characters
+    .map((step) => {
+      const glyph = text(commandCharX(step.charIndex), y, 'fg', step.character);
+      return `<g id="command-char-${String(step.charIndex)}" opacity="1">${renderOpacityReveal(
+        {
+          startMs: step.startMs,
+          durationMs: step.durationMs,
+        },
+      )}${glyph}</g>`;
+    })
+    .join('');
+
+  const cursorY = y - layout.cursorHeight / 2;
+  const moves = characters
+    .map(
+      (step) =>
+        `<set attributeName="x" to="${String(commandCharX(step.charIndex + 1))}" begin="${smilMs(step.startMs)}" fill="freeze"/>`,
+    )
+    .join('');
+  const hide =
+    hideCursorAtMs === undefined
+      ? ''
+      : `<set attributeName="opacity" to="0" begin="${smilMs(hideCursorAtMs)}" fill="freeze"/>`;
+  const cursor = `<rect id="command-cursor" class="command-cursor" x="${String(commandCharX(0))}" y="${String(cursorY)}" width="${String(layout.cursorWidth)}" height="${String(layout.cursorHeight)}" opacity="0"><set attributeName="opacity" to="1" begin="0ms" fill="freeze"/>${moves}${hide}</rect>`;
+
+  return `${prompt}${glyphs}${cursor}`;
 }
 
 function renderMetric(
@@ -203,16 +246,34 @@ export function renderTerminalSvg(
   options: RenderTerminalSvgOptions = {},
 ): string {
   const { height, baselines } = measureTerminalLayout(output.lines);
-  const reveals = options.timeline
-    ? lineRevealSchedule(options.timeline)
+  const timeline = options.timeline;
+  const reveals = timeline
+    ? lineRevealSchedule(timeline)
     : new Map<number, LineReveal>();
+  const typedCharacters = timeline ? commandCharacterSteps(timeline) : [];
+  const hideTypingCursorAtMs = timeline
+    ? typingCursorHideMs(timeline)
+    : undefined;
   const counters = { metric: 0, language: 0 };
   const body = output.lines
     .map((line, index) => {
-      const content = renderLine(line, baselines[index] ?? 0);
+      const y = baselines[index] ?? 0;
+      const characters = typedCharacters.filter(
+        (step) => step.lineIndex === index,
+      );
+
+      if (line.type === 'command' && characters.length > 0) {
+        return `<g id="${escapeXml(lineGroupId(line, counters))}">${renderTypedCommand(
+          line,
+          y,
+          characters,
+          hideTypingCursorAtMs,
+        )}</g>`;
+      }
+
       return wrapAnimatedLine(
         lineGroupId(line, counters),
-        content,
+        renderLine(line, y),
         reveals.get(index),
       );
     })

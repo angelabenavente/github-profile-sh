@@ -1,10 +1,38 @@
-import { animationTimings } from './timings.js';
 import type { AnimationTimeline, CommandCharacterStep } from './types.js';
 
 export type LineReveal = {
   startMs: number;
   durationMs: number;
 };
+
+export function commandCharacterSteps(
+  timeline: AnimationTimeline,
+): CommandCharacterStep[] {
+  if (timeline.mode !== 'typing') {
+    return [];
+  }
+
+  return timeline.steps.filter(
+    (step): step is CommandCharacterStep => step.type === 'commandCharacter',
+  );
+}
+
+export function typingCursorHideMs(
+  timeline: AnimationTimeline,
+): number | undefined {
+  if (commandCharacterSteps(timeline).length === 0) {
+    return undefined;
+  }
+
+  const next = timeline.steps.find(
+    (step) =>
+      step.type === 'lineReveal' ||
+      step.type === 'languageReveal' ||
+      step.type === 'finalPrompt',
+  );
+
+  return next?.startMs;
+}
 
 export function lineRevealSchedule(
   timeline: AnimationTimeline,
@@ -15,7 +43,9 @@ export function lineRevealSchedule(
     return reveals;
   }
 
-  const commandCharacters = new Map<number, CommandCharacterStep[]>();
+  const typedLines = new Set(
+    commandCharacterSteps(timeline).map((step) => step.lineIndex),
+  );
 
   for (const step of timeline.steps) {
     switch (step.type) {
@@ -28,31 +58,14 @@ export function lineRevealSchedule(
           durationMs: step.durationMs,
         });
         break;
-      case 'commandCharacter': {
-        const characters = commandCharacters.get(step.lineIndex) ?? [];
-        characters.push(step);
-        commandCharacters.set(step.lineIndex, characters);
-        break;
-      }
+      case 'commandCharacter':
       case 'cursorBlink':
         break;
     }
   }
 
-  for (const [lineIndex, characters] of commandCharacters) {
-    if (reveals.has(lineIndex)) {
-      continue;
-    }
-
-    const first = characters[0];
-    if (first === undefined) {
-      continue;
-    }
-
-    reveals.set(lineIndex, {
-      startMs: first.startMs,
-      durationMs: animationTimings.commandRevealMs,
-    });
+  for (const lineIndex of typedLines) {
+    reveals.delete(lineIndex);
   }
 
   return reveals;

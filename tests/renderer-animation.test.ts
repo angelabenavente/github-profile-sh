@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  commandCharacterSteps,
   createAnimationTimeline,
+  typingCursorHideMs,
   type AnimationConfig,
 } from '../packages/core/src/animation/index.js';
+import { commandTextX, layout } from '../packages/core/src/renderer/layout.js';
 import { renderTerminalSvg } from '../packages/core/src/renderer/index.js';
 import { completeOutput } from './fixtures/terminal-output.js';
 
@@ -113,15 +116,65 @@ describe('renderTerminalSvg animation', () => {
     expect(groupBlock(svg, 'language-0').match(/<animate /g)).toHaveLength(1);
   });
 
-  it('treats typing command as a single sequential reveal for now', () => {
-    const svg = renderWith(typing);
-    const command = groupBlock(svg, 'line-command');
+  it('types the command one character at a time', () => {
+    const timeline = createAnimationTimeline(completeOutput, typing);
+    const svg = renderTerminalSvg(completeOutput, { timeline });
+    const characters = commandCharacterSteps(timeline);
+    const hideAt = typingCursorHideMs(timeline);
+    const charIds = [...svg.matchAll(/id="command-char-(\d+)"/g)].map((match) =>
+      Number(match[1]),
+    );
+    const typed = [
+      ...svg.matchAll(
+        /id="command-char-\d+"[^>]*>[\s\S]*?<text[^>]*>([^<]*)<\/text>/g,
+      ),
+    ].map((match) => match[1] ?? '');
+    const cursorBlock =
+      /id="command-cursor"[\s\S]*?<\/rect>/.exec(svg)?.[0] ?? '';
+    const cursorMoves = cursorBlock.matchAll(/attributeName="x" to="(\d+)"/g);
 
-    expect(command).toContain('github-profile.sh');
-    expect(command.match(/<animate /g)).toHaveLength(1);
-    expect(animateBeginMs(command)).toBe(0);
-    expect(svg).not.toMatch(/tspan[^>]*>g<\/tspan>/);
-    expect(animateBeginMs(groupBlock(svg, 'line-status'))).toBeGreaterThan(0);
+    expect(characters).toHaveLength(17);
+    expect(charIds).toEqual(characters.map((step) => step.charIndex));
+    expect(typed.join('')).toBe('github-profile.sh');
+    expect(typed[0]).toBe('g');
+    expect(typed.at(-1)).toBe('h');
+    expect(svg).toContain('>$</text>');
+    expect(svg).toContain('id="command-cursor"');
+    expect(svg).not.toContain('█');
+
+    for (const [index, step] of characters.entries()) {
+      expect(
+        animateBeginMs(groupBlock(svg, `command-char-${String(index)}`)),
+      ).toBe(step.startMs);
+    }
+
+    expect(
+      cursorMoves ? [...cursorMoves].map((match) => Number(match[1])) : [],
+    ).toEqual(
+      characters.map(
+        (_, index) => commandTextX() + (index + 1) * layout.charWidth,
+      ),
+    );
+    expect(hideAt).toBe(animateBeginMs(groupBlock(svg, 'line-status')));
+    expect(svg).toContain(`begin="${String(hideAt)}ms"`);
+    expect(animateBeginMs(groupBlock(svg, 'line-status'))).toBeGreaterThan(
+      (characters.at(-1)?.startMs ?? 0) + (characters.at(-1)?.durationMs ?? 0),
+    );
+    expect(renderWith(typing)).toBe(svg);
+    expect(svg).not.toContain('repeatCount="indefinite"');
+    expect(svg).not.toContain('<script');
+  });
+
+  it('does not type the command in sequential or none modes', () => {
+    const sequentialSvg = renderWith(sequential);
+    const noneSvg = renderWith(none);
+
+    expect(sequentialSvg).not.toContain('id="command-char-');
+    expect(sequentialSvg).not.toContain('id="command-cursor"');
+    expect(sequentialSvg).toContain('github-profile.sh');
+    expect(noneSvg).not.toContain('id="command-char-');
+    expect(noneSvg).not.toContain('id="command-cursor"');
+    expect(noneSvg).not.toContain('<animate');
   });
 
   it('keeps the cursor static and the document self-contained', () => {

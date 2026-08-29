@@ -220,7 +220,7 @@ describe('createAnimationTimeline', () => {
     expect(timeline.steps.at(-1)?.type).toBe('cursorBlink');
   });
 
-  it('collapses command typing into one line reveal for sequential rendering', () => {
+  it('keeps command characters out of the line-reveal schedule in typing mode', () => {
     const typingSchedule = lineRevealSchedule(
       createAnimationTimeline(completeOutput, typing),
     );
@@ -231,10 +231,7 @@ describe('createAnimationTimeline', () => {
     expect(
       lineRevealSchedule(createAnimationTimeline(completeOutput, none)).size,
     ).toBe(0);
-    expect(typingSchedule.get(0)).toEqual({
-      startMs: 0,
-      durationMs: animationTimings.commandRevealMs,
-    });
+    expect(typingSchedule.get(0)).toBeUndefined();
     expect(sequentialSchedule.get(0)).toEqual({
       startMs: 0,
       durationMs: animationTimings.commandRevealMs,

@@ -1,4 +1,8 @@
-export { lineRevealSchedule } from './schedule.js';
+export {
+  commandCharacterSteps,
+  lineRevealSchedule,
+  typingCursorHideMs,
+} from './schedule.js';
 export { createAnimationTimeline } from './timeline.js';
 export { animationTimings } from './timings.js';
 export type { LineReveal } from './schedule.js';

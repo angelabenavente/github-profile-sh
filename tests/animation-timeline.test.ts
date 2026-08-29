@@ -238,6 +238,57 @@ describe('createAnimationTimeline', () => {
     });
   });
 
+  it('uses terminal-like pacing instead of even dashboard gaps', () => {
+    const timeline = createAnimationTimeline(completeOutput, typing);
+    const characters = stepsOf(timeline.steps, 'commandCharacter');
+    const loading = stepsOf(timeline.steps, 'lineReveal').find(
+      (step) => step.lineType === 'status',
+    );
+    const metrics = stepsOf(timeline.steps, 'lineReveal').filter(
+      (step) => step.lineType === 'metric',
+    );
+    const heading = stepsOf(timeline.steps, 'lineReveal').find(
+      (step) => step.lineType === 'heading',
+    );
+    const lastLanguage = stepsOf(timeline.steps, 'languageReveal').at(-1);
+    const prompt = stepsOf(timeline.steps, 'finalPrompt')[0];
+    const lastCharacter = characters.at(-1);
+    const firstMetric = metrics[0];
+    const secondMetric = metrics[1];
+
+    const commandMs =
+      (lastCharacter?.startMs ?? 0) + (lastCharacter?.durationMs ?? 0);
+    const afterCommandMs = (loading?.startMs ?? 0) - commandMs;
+    const afterLoadingMs =
+      (firstMetric?.startMs ?? 0) -
+      ((loading?.startMs ?? 0) + (loading?.durationMs ?? 0));
+    const betweenMetricsMs =
+      (secondMetric?.startMs ?? 0) -
+      ((firstMetric?.startMs ?? 0) + (firstMetric?.durationMs ?? 0));
+    const beforeLanguagesMs =
+      (heading?.startMs ?? 0) -
+      ((metrics.at(-1)?.startMs ?? 0) + (metrics.at(-1)?.durationMs ?? 0));
+    const beforePromptMs =
+      (prompt?.startMs ?? 0) -
+      ((lastLanguage?.startMs ?? 0) + (lastLanguage?.durationMs ?? 0));
+
+    expect(commandMs).toBeGreaterThanOrEqual(900);
+    expect(commandMs).toBeLessThanOrEqual(1300);
+    expect(afterCommandMs).toBeGreaterThan(0);
+    expect(afterCommandMs).toBeLessThan(afterLoadingMs);
+    expect(afterLoadingMs).toBeGreaterThan(betweenMetricsMs);
+    expect(afterLoadingMs).toBeGreaterThan(beforeLanguagesMs);
+    expect(betweenMetricsMs).toBeGreaterThan(0);
+    expect(beforeLanguagesMs).toBeGreaterThan(betweenMetricsMs);
+    expect(beforePromptMs).toBeGreaterThan(betweenMetricsMs);
+    expect(loading?.startMs).toBeGreaterThan(commandMs);
+    expect(heading?.startMs).toBeGreaterThan(metrics.at(-1)?.startMs ?? -1);
+    expect(prompt?.startMs).toBeGreaterThan(lastLanguage?.startMs ?? -1);
+    expect(
+      createAnimationTimeline(completeOutput, sequential).durationMs,
+    ).toBeLessThan(timeline.durationMs);
+  });
+
   it('is monotonic, non-negative, deterministic, and one-shot', () => {
     const timeline = createAnimationTimeline(completeOutput, typing);
     const starts = timeline.steps.map(stepStart);
@@ -252,7 +303,7 @@ describe('createAnimationTimeline', () => {
     ).toBe(true);
     expect(starts).toEqual([...starts].sort((left, right) => left - right));
     expect(timeline.durationMs).toBeGreaterThanOrEqual(4000);
-    expect(timeline.durationMs).toBeLessThanOrEqual(6000);
+    expect(timeline.durationMs).toBeLessThanOrEqual(5500);
     expect(timeline.durationMs).toBe(
       stepsOf(timeline.steps, 'cursorBlink')[0]?.startMs,
     );

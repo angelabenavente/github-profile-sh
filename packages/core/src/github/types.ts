@@ -55,3 +55,17 @@ export type CodeChanges = {
   repositoriesProcessed: number;
   repositoriesSkipped: number;
 };
+
+export type ProfileStats = {
+  username: string;
+  repos: number;
+  stars: number;
+  currentStreak: number;
+  codeChanges: {
+    additions: number;
+    deletions: number;
+    total: number;
+    complete: boolean;
+  };
+  topLanguages: LanguageStat[];
+};

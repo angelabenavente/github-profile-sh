@@ -1,0 +1,25 @@
+{
+  "name": "github-profile-sh",
+  "version": "0.1.0",
+  "description": "Animated GitHub profile stats rendered as a terminal.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "github-profile-sh": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node dist/index.js"
+  },
+  "dependencies": {
+    "cac": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0"
+  }
+}

@@ -40,3 +40,18 @@ export type LanguageStat = {
   bytes: number;
   percentage: number;
 };
+
+export type RepositoryCodeChanges = {
+  additions: number;
+  deletions: number;
+  counted: boolean;
+};
+
+export type CodeChanges = {
+  additions: number;
+  deletions: number;
+  total: number;
+  complete: boolean;
+  repositoriesProcessed: number;
+  repositoriesSkipped: number;
+};

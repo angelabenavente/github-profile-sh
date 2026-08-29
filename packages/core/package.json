@@ -6,7 +6,8 @@
     "./config": "./src/config/index.ts",
     "./github": "./src/github/index.ts",
     "./terminal": "./src/terminal/index.ts",
-    "./renderer": "./src/renderer/index.ts"
+    "./renderer": "./src/renderer/index.ts",
+    "./animation": "./src/animation/index.ts"
   },
   "dependencies": {
     "octokit": "^5.0.5",

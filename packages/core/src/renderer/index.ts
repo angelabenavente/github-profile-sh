@@ -1,3 +1,3 @@
 export { escapeXml } from './escape.js';
-export { renderTerminalSvg } from './svg.js';
+export { renderTerminalSvg, type RenderTerminalSvgOptions } from './svg.js';
 export { truncateLanguageName } from './text.js';

@@ -1,3 +1,8 @@
+import {
+  lineRevealSchedule,
+  type AnimationTimeline,
+  type LineReveal,
+} from '../animation/index.js';
 import { formatMetricLine } from '../terminal/format.js';
 import type { TerminalLine, TerminalOutput } from '../terminal/types.js';
 
@@ -119,6 +124,54 @@ function renderPrompt(
   return `${prompt}${cursor}`;
 }
 
+function smilMs(value: number): string {
+  return `${String(value)}ms`;
+}
+
+function renderOpacityReveal(reveal: LineReveal): string {
+  return `<set attributeName="opacity" to="0" begin="0ms" fill="freeze"/><animate attributeName="opacity" from="0" to="1" begin="${smilMs(reveal.startMs)}" dur="${smilMs(reveal.durationMs)}" fill="freeze"/>`;
+}
+
+function lineGroupId(
+  line: TerminalLine,
+  counters: { metric: number; language: number },
+): string {
+  switch (line.type) {
+    case 'command':
+      return 'line-command';
+    case 'status':
+      return 'line-status';
+    case 'metric': {
+      const id = `metric-${String(counters.metric)}`;
+      counters.metric += 1;
+      return id;
+    }
+    case 'heading':
+      return 'line-heading';
+    case 'language': {
+      const id = `language-${String(counters.language)}`;
+      counters.language += 1;
+      return id;
+    }
+    case 'prompt':
+      return 'line-prompt';
+    case 'blank':
+      return '';
+  }
+}
+
+function wrapAnimatedLine(
+  id: string,
+  content: string,
+  reveal: LineReveal | undefined,
+): string {
+  if (content === '' || reveal === undefined) {
+    return content;
+  }
+
+  return `<g id="${escapeXml(id)}" opacity="1">${renderOpacityReveal(reveal)}${content}</g>`;
+}
+
 function renderLine(line: TerminalLine, y: number): string {
   switch (line.type) {
     case 'command':
@@ -141,10 +194,28 @@ function renderLine(line: TerminalLine, y: number): string {
 const svgDescription =
   'Public GitHub profile statistics shown as a terminal session.';
 
-export function renderTerminalSvg(output: TerminalOutput): string {
+export type RenderTerminalSvgOptions = {
+  timeline?: AnimationTimeline;
+};
+
+export function renderTerminalSvg(
+  output: TerminalOutput,
+  options: RenderTerminalSvgOptions = {},
+): string {
   const { height, baselines } = measureTerminalLayout(output.lines);
+  const reveals = options.timeline
+    ? lineRevealSchedule(options.timeline)
+    : new Map<number, LineReveal>();
+  const counters = { metric: 0, language: 0 };
   const body = output.lines
-    .map((line, index) => renderLine(line, baselines[index] ?? 0))
+    .map((line, index) => {
+      const content = renderLine(line, baselines[index] ?? 0);
+      return wrapAnimatedLine(
+        lineGroupId(line, counters),
+        content,
+        reveals.get(index),
+      );
+    })
     .filter((fragment) => fragment !== '')
     .join('');
 

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   animationTimings,
   createAnimationTimeline,
+  lineRevealSchedule,
   type AnimationConfig,
   type AnimationStep,
 } from '../packages/core/src/animation/index.js';
@@ -217,6 +218,27 @@ describe('createAnimationTimeline', () => {
     );
     expect(blink[0]?.intervalMs).toBe(animationTimings.cursorBlinkIntervalMs);
     expect(timeline.steps.at(-1)?.type).toBe('cursorBlink');
+  });
+
+  it('collapses command typing into one line reveal for sequential rendering', () => {
+    const typingSchedule = lineRevealSchedule(
+      createAnimationTimeline(completeOutput, typing),
+    );
+    const sequentialSchedule = lineRevealSchedule(
+      createAnimationTimeline(completeOutput, sequential),
+    );
+
+    expect(
+      lineRevealSchedule(createAnimationTimeline(completeOutput, none)).size,
+    ).toBe(0);
+    expect(typingSchedule.get(0)).toEqual({
+      startMs: 0,
+      durationMs: animationTimings.commandRevealMs,
+    });
+    expect(sequentialSchedule.get(0)).toEqual({
+      startMs: 0,
+      durationMs: animationTimings.commandRevealMs,
+    });
   });
 
   it('is monotonic, non-negative, deterministic, and one-shot', () => {

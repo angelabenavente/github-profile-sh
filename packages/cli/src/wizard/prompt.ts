@@ -72,6 +72,25 @@ export async function collectWizardAnswers(): Promise<WizardAnswers> {
   return { sections, animation, frequency };
 }
 
+export const defaultOverwrite = false;
+
+export async function promptOverwrite(filename: string): Promise<boolean> {
+  if (process.stdin.isTTY !== true || process.stdout.isTTY !== true) {
+    throw new NonInteractiveError();
+  }
+
+  return requireAnswer(
+    await select<boolean>({
+      message: `${filename} already exists. Overwrite?`,
+      options: [
+        { value: true, label: 'Yes' },
+        { value: false, label: 'No' },
+      ],
+      initialValue: defaultOverwrite,
+    }),
+  );
+}
+
 export async function promptForConfig(
   collect: WizardCollector = collectWizardAnswers,
 ) {

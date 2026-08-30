@@ -120,38 +120,17 @@ describe('collectWizardAnswers', () => {
 });
 
 describe('runInit', () => {
-  it('prints a summary and does not write files', async () => {
-    const directory = mkdtempSync(join(tmpdir(), 'github-profile-sh-'));
-    const previousCwd = process.cwd();
-    const write = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
-
-    try {
-      process.chdir(directory);
-      await runInit(() => buildProfileConfig(defaultWizardAnswers));
-      expect(
-        write.mock.calls.map(([chunk]) => String(chunk)).join(''),
-      ).toContain('Configuration ready.');
-      expect(readdirSync(directory)).toEqual([]);
-    } finally {
-      process.chdir(previousCwd);
-      write.mockRestore();
-    }
-  });
-
   it('propagates cancellation without writing files', async () => {
     const directory = mkdtempSync(join(tmpdir(), 'github-profile-sh-'));
-    const previousCwd = process.cwd();
 
-    try {
-      process.chdir(directory);
-      await expect(
-        runInit(() => {
+    await expect(
+      runInit({
+        collectConfig: () => {
           throw new SetupCancelledError();
-        }),
-      ).rejects.toBeInstanceOf(SetupCancelledError);
-    } finally {
-      process.chdir(previousCwd);
-    }
+        },
+        cwd: directory,
+      }),
+    ).rejects.toBeInstanceOf(SetupCancelledError);
 
     expect(readdirSync(directory)).toEqual([]);
   });

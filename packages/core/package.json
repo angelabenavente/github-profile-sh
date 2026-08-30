@@ -5,6 +5,7 @@
   "exports": {
     "./config": "./src/config/index.ts",
     "./config/schema": "./src/config/schema.ts",
+    "./config/serialize": "./src/config/serialize.ts",
     "./github": "./src/github/index.ts",
     "./terminal": "./src/terminal/index.ts",
     "./renderer": "./src/renderer/index.ts",

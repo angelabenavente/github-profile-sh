@@ -4,3 +4,4 @@ export {
   profileConfigSchema,
   type ProfileConfig,
 } from './schema.js';
+export { serializeProfileConfig } from './serialize.js';

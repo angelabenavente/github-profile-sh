@@ -74,14 +74,14 @@ export async function collectWizardAnswers(): Promise<WizardAnswers> {
 
 export const defaultOverwrite = false;
 
-export async function promptOverwrite(filename: string): Promise<boolean> {
+export async function promptOverwrite(message: string): Promise<boolean> {
   if (process.stdin.isTTY !== true || process.stdout.isTTY !== true) {
     throw new NonInteractiveError();
   }
 
   return requireAnswer(
     await select<boolean>({
-      message: `${filename} already exists. Overwrite?`,
+      message,
       options: [
         { value: true, label: 'Yes' },
         { value: false, label: 'No' },

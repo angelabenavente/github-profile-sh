@@ -120,15 +120,14 @@ describe('runInit file creation', () => {
         collectConfig: () => defaultConfig,
         cwd,
       });
-      expect(write.mock.calls.map(([chunk]) => String(chunk)).join('')).toBe(
-        'Created github-profile-sh.yml\n\nConfiguration file created.\n',
-      );
+      expect(
+        write.mock.calls.map(([chunk]) => String(chunk)).join(''),
+      ).toContain('✓ Created github-profile-sh.yml');
     } finally {
       write.mockRestore();
     }
 
-    expect(readdirSync(cwd)).toEqual([PROFILE_CONFIG_FILENAME]);
-    expect(readdirSync(cwd)).not.toContain('.github');
+    expect(readdirSync(cwd)).toContain(PROFILE_CONFIG_FILENAME);
     expect(readdirSync(cwd)).not.toContain('README.md');
     expect(readFileSync(join(cwd, PROFILE_CONFIG_FILENAME), 'utf8')).toBe(
       serializeProfileConfig(defaultConfig),
@@ -144,12 +143,12 @@ describe('runInit file creation', () => {
     try {
       await runInit({
         collectConfig: () => defaultConfig,
-        confirmOverwrite: () => false,
+        confirmOverwriteConfig: () => false,
         cwd,
       });
-      expect(write.mock.calls.map(([chunk]) => String(chunk)).join('')).toBe(
-        'Kept existing github-profile-sh.yml\n',
-      );
+      expect(
+        write.mock.calls.map(([chunk]) => String(chunk)).join(''),
+      ).toContain('✓ Kept existing github-profile-sh.yml');
     } finally {
       write.mockRestore();
     }

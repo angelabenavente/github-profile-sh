@@ -43,3 +43,8 @@ export const frequencySummaryLabels: Record<UpdateFrequency, string> = {
   monthly: 'once a month',
   manual: 'manual only',
 };
+
+export function frequencyLabel(frequency: UpdateFrequency): string {
+  const option = frequencyOptions.find((item) => item.value === frequency);
+  return option?.label ?? frequency;
+}

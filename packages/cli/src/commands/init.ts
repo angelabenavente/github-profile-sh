@@ -1,12 +1,10 @@
 import type { ProfileConfig } from '@github-profile-sh/core/config/schema';
 
-import {
-  PROFILE_CONFIG_FILENAME,
-  writeProfileConfig,
-} from '../config/write.js';
+import { writeProfileConfig } from '../config/write.js';
 import { promptForConfig } from '../wizard/prompt.js';
-import { WORKFLOW_RELATIVE_PATH } from '../workflow/generate.js';
-import { WORKFLOW_OVERWRITE_LABEL, writeWorkflow } from '../workflow/write.js';
+import { writeWorkflow } from '../workflow/write.js';
+
+import { buildSetupSummary } from './setup-summary.js';
 
 export type RunInitOptions = {
   collectConfig?: () => ProfileConfig | Promise<ProfileConfig>;
@@ -27,28 +25,10 @@ export async function runInit(options: RunInitOptions = {}): Promise<void> {
   });
 
   process.stdout.write(
-    [
-      formatWriteLine(configResult.status, PROFILE_CONFIG_FILENAME),
-      formatWriteLine(
-        workflowResult.status,
-        WORKFLOW_RELATIVE_PATH,
-        WORKFLOW_OVERWRITE_LABEL,
-      ),
-      '',
-      'Setup files created.',
-      '',
-    ].join('\n'),
+    buildSetupSummary({
+      configStatus: configResult.status,
+      workflowStatus: workflowResult.status,
+      frequency: config.update.frequency,
+    }),
   );
-}
-
-function formatWriteLine(
-  status: 'created' | 'overwritten' | 'skipped',
-  createdPath: string,
-  existingLabel = createdPath,
-): string {
-  if (status === 'skipped') {
-    return `✓ Kept existing ${existingLabel}`;
-  }
-
-  return `✓ Created ${createdPath}`;
 }

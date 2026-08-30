@@ -158,15 +158,12 @@ describe('runInit workflow files', () => {
         collectConfig: () => defaultConfig,
         cwd,
       });
-      expect(write.mock.calls.map(([chunk]) => String(chunk)).join('')).toBe(
-        [
-          '✓ Created github-profile-sh.yml',
-          '✓ Created .github/workflows/github-profile-sh.yml',
-          '',
-          'Setup files created.',
-          '',
-        ].join('\n'),
+      const output = write.mock.calls.map(([chunk]) => String(chunk)).join('');
+      expect(output).toContain('✓ Created github-profile-sh.yml');
+      expect(output).toContain(
+        '✓ Created .github/workflows/github-profile-sh.yml',
       );
+      expect(output).toContain('Setup complete.');
     } finally {
       write.mockRestore();
     }

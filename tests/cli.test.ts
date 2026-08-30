@@ -11,10 +11,11 @@ const cliPath = join(
   '../packages/cli/dist/index.js',
 );
 
-function runCli(args: string[]) {
+function runCli(args: string[], cwd?: string) {
   try {
     const stdout = execFileSync(process.execPath, [cliPath, ...args], {
       encoding: 'utf8',
+      cwd,
     });
     return { code: 0, stdout, stderr: '' };
   } catch (error) {
@@ -51,15 +52,13 @@ describe('github-profile-sh CLI', () => {
     expect(stdout).toContain('Configure github-profile.sh');
   });
 
-  it('runs init without writing files', () => {
+  it('does not write files when init is not interactive', () => {
     const directory = mkdtempSync(join(tmpdir(), 'github-profile-sh-'));
-    const before = readdirSync(directory);
-    const { code, stdout } = runCli(['init']);
+    const { code, stderr } = runCli(['init'], directory);
 
-    expect(code).toBe(0);
-    expect(stdout).toContain('github-profile.sh');
-    expect(stdout).toContain('Starting setup...');
-    expect(readdirSync(directory)).toEqual(before);
+    expect(code).toBe(1);
+    expect(stderr).toContain('init requires an interactive terminal.');
+    expect(readdirSync(directory)).toEqual([]);
   });
 
   it('rejects an unknown command', () => {

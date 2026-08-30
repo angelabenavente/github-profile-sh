@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     "./config": "./src/config/index.ts",
+    "./config/schema": "./src/config/schema.ts",
     "./github": "./src/github/index.ts",
     "./terminal": "./src/terminal/index.ts",
     "./renderer": "./src/renderer/index.ts",

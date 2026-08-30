@@ -17,6 +17,8 @@
     "dev": "tsc && node dist/index.js"
   },
   "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "@github-profile-sh/core": "workspace:*",
     "cac": "^7.0.0"
   },
   "devDependencies": {

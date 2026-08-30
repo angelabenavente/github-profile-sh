@@ -1,0 +1,20 @@
+name: github-profile.sh
+description: Animated GitHub profile stats rendered as a terminal.
+inputs:
+  config:
+    description: Path to the github-profile.sh configuration file
+    required: false
+    default: github-profile-sh.yml
+  output:
+    description: Path to write the generated SVG
+    required: false
+    default: github-profile.svg
+  token:
+    description: GitHub token used to fetch public profile data
+    required: true
+outputs:
+  svg-path:
+    description: Path of the generated SVG file
+runs:
+  using: node24
+  main: packages/action/dist/index.js

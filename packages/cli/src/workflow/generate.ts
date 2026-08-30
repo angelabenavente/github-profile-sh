@@ -50,6 +50,7 @@ export function generateWorkflow(frequency: UpdateFrequency): string {
     '        with:',
     `          config: ${PROFILE_CONFIG_INPUT}`,
     `          output: ${PROFILE_SVG_FILENAME}`,
+    '          token: ${{ github.token }}',
     '',
     '      - name: Commit profile',
     '        run: |',

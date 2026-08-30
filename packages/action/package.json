@@ -1,0 +1,20 @@
+{
+  "name": "@github-profile-sh/action",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt"
+  },
+  "dependencies": {
+    "@actions/core": "^2.0.2",
+    "@actions/github": "^7.0.0",
+    "@github-profile-sh/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@vercel/ncc": "^0.38.4"
+  }
+}

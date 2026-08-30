@@ -54,6 +54,7 @@ describe('generateWorkflow', () => {
     expect(yaml).toContain('Generate profile');
     expect(yaml).toContain(`uses: ${GITHUB_PROFILE_ACTION}`);
     expect(yaml).toContain(`output: ${PROFILE_SVG_FILENAME}`);
+    expect(yaml).toContain('token: ${{ github.token }}');
     expect(yaml).toContain(`git commit -m "${PROFILE_COMMIT_MESSAGE}"`);
     expect(yaml).toBe(generateWorkflow(frequency));
   });
@@ -67,6 +68,7 @@ describe('generateWorkflow', () => {
     expect(yaml).not.toContain('cron:');
     expect(yaml).toContain('contents: write');
     expect(yaml).toContain(`output: ${PROFILE_SVG_FILENAME}`);
+    expect(yaml).toContain('token: ${{ github.token }}');
     expect(yaml).toContain(`git commit -m "${PROFILE_COMMIT_MESSAGE}"`);
     expect(yaml).toBe(generateWorkflow('manual'));
   });

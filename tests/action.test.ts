@@ -294,7 +294,7 @@ describe('action.yml', () => {
 
   it('declares a Node 24 JavaScript action at the package bundle', () => {
     expect(yaml).toContain('using: node24');
-    expect(yaml).toContain('main: packages/action/dist/index.js');
+    expect(yaml).toContain('main: dist/index.js');
     expect(yaml).toContain('default: github-profile-sh.yml');
     expect(yaml).toContain('default: github-profile.svg');
     expect(yaml).toContain('svg-path:');

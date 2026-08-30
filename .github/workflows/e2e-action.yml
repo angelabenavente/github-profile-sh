@@ -30,7 +30,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Action bundle
-        run: pnpm --filter @github-profile-sh/action build
+        run: pnpm build:action
 
       - name: Generate profile
         uses: ./

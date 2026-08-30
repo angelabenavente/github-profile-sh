@@ -48,6 +48,7 @@ describe('E2E Action workflow', () => {
     expect(workflow).not.toContain('pull_request');
     expect(workflow).not.toContain('\n  push:');
     expect(workflow).toContain('uses: ./');
+    expect(workflow).toContain('pnpm build:action');
     expect(workflow).toContain('config: examples/e2e-profile.yml');
     expect(workflow).toContain('output: tmp/e2e/github-profile.svg');
     expect(workflow).toContain('token: ${{ github.token }}');

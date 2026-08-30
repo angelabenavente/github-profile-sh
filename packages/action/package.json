@@ -6,7 +6,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt"
+    "build": "ncc build src/index.ts -o ../../dist"
   },
   "dependencies": {
     "@actions/core": "^2.0.2",

@@ -12,6 +12,7 @@
     "format:check": "prettier --check .",
     "test": "vitest",
     "test:run": "vitest run",
+    "typecheck": "tsc --noEmit",
     "build:action": "pnpm --filter @github-profile-sh/action build"
   },
   "devDependencies": {

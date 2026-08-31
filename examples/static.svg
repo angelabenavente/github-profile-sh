@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="458" viewBox="0 0 700 458" role="img"><title>github-profile.sh</title><desc>Public GitHub profile statistics shown as a terminal session.</desc><style>
+    text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 16px;
+      white-space: pre;
+    }
+    .fg { fill: #e6edf3; }
+    .muted { fill: #8b949e; }
+    .dots { fill: #8b949e; fill-opacity: 0.55; }
+    .accent { fill: #3fb950; }
+    .track { fill: #21262d; }
+    .bar { fill: #3fb950; }
+    .cursor { fill: #e6edf3; }
+    .command-cursor { fill: #3fb950; }
+  </style><rect width="700" height="458" rx="10" fill="#0d1117"/><text x="32" y="42" class="accent" dominant-baseline="middle">$</text><text x="52" y="42" class="fg" dominant-baseline="middle">github-profile.sh</text><text x="32" y="70" class="muted" dominant-baseline="middle">fetching public profile data...</text><text x="32" y="126" dominant-baseline="middle"><tspan class="fg">repos</tspan><tspan class="dots">.............................</tspan><tspan class="fg">42</tspan></text><text x="32" y="154" dominant-baseline="middle"><tspan class="fg">stars</tspan><tspan class="dots">...........................</tspan><tspan class="fg">1.8k</tspan></text><text x="32" y="182" dominant-baseline="middle"><tspan class="fg">current streak</tspan><tspan class="dots">...............</tspan><tspan class="fg">21 days</tspan></text><text x="32" y="210" dominant-baseline="middle"><tspan class="fg">code changes</tspan><tspan class="dots">....................</tspan><tspan class="fg">8.4k</tspan></text><text x="32" y="266" class="muted" dominant-baseline="middle">top languages</text><text x="32" y="304" class="fg" dominant-baseline="middle">TypeScript</text><rect class="track" x="232" y="299.5" width="240" height="9" rx="2"/><rect class="bar" x="232" y="299.5" width="149" height="9" rx="2"/><text x="528" y="304" class="muted" dominant-baseline="middle" text-anchor="end">62%</text><text x="32" y="332" class="fg" dominant-baseline="middle">Rust</text><rect class="track" x="232" y="327.5" width="240" height="9" rx="2"/><rect class="bar" x="232" y="327.5" width="60" height="9" rx="2"/><text x="528" y="332" class="muted" dominant-baseline="middle" text-anchor="end">25%</text><text x="32" y="360" class="fg" dominant-baseline="middle">Go</text><rect class="track" x="232" y="355.5" width="240" height="9" rx="2"/><rect class="bar" x="232" y="355.5" width="31" height="9" rx="2"/><text x="528" y="360" class="muted" dominant-baseline="middle" text-anchor="end">13%</text><text x="32" y="416" class="accent" dominant-baseline="middle">$</text><rect id="final-cursor" class="cursor" x="52" y="408" width="10" height="16"></rect></svg>

@@ -5,7 +5,7 @@ Actions.
 
 [![CI](https://github.com/angelabenavente/github-profile-sh/actions/workflows/ci.yml/badge.svg)](https://github.com/angelabenavente/github-profile-sh/actions/workflows/ci.yml)
 
-![github-profile.sh](./examples/profile.svg)
+![github-profile.sh](./examples/github-profile.svg)
 
 ## What it shows
 
@@ -79,8 +79,8 @@ it from the Actions tab.
 
 ## Configuration
 
-`github-profile-sh.yml` is the source of truth. A default file looks like
-this:
+`github-profile-sh.yml` is the source of truth. The checked-in sample is
+`examples/github-profile.yml`. A default file looks like this:
 
 ```yaml
 sections:
@@ -161,4 +161,10 @@ Rebuild the committed Action bundle after changing Action or core source:
 
 ```bash
 pnpm build:action
+```
+
+Regenerate the versioned SVGs in `examples/`:
+
+```bash
+pnpm examples:generate
 ```

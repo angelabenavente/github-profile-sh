@@ -3,25 +3,43 @@
   "version": "0.1.0",
   "description": "Animated GitHub profile stats rendered as a terminal.",
   "type": "module",
-  "engines": {
-    "node": ">=24"
-  },
   "bin": {
     "github-profile-sh": "./dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/angelabenavente/github-profile-sh.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/angelabenavente/github-profile-sh#readme",
+  "bugs": {
+    "url": "https://github.com/angelabenavente/github-profile-sh/issues"
+  },
+  "keywords": [
+    "github",
+    "profile",
+    "readme",
+    "svg",
+    "cli"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc && node dist/index.js"
-  },
-  "dependencies": {
-    "@clack/prompts": "^1.7.0",
-    "@github-profile-sh/core": "workspace:*",
-    "cac": "^7.0.0"
+    "build": "ncc build src/index.ts -o dist",
+    "dev": "ncc build src/index.ts -o dist && node dist/index.js",
+    "prepack": "ncc build src/index.ts -o dist",
+    "pack": "npm pack"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0"
+    "@clack/prompts": "^1.7.0",
+    "@github-profile-sh/core": "workspace:*",
+    "@types/node": "^24.3.0",
+    "@vercel/ncc": "^0.38.4",
+    "cac": "^7.0.0"
   }
 }

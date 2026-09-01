@@ -41,11 +41,14 @@ jobs:
       - name: Format
         run: pnpm format:check
 
-      - name: Test
-        run: pnpm test:run
-
       - name: Typecheck
         run: pnpm typecheck
+
+      - name: Build CLI
+        run: pnpm build:cli
+
+      - name: Test
+        run: pnpm test:run
 
       - name: Verify Action bundle is up to date
         run: |

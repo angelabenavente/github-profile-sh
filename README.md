@@ -163,6 +163,12 @@ Rebuild the committed Action bundle after changing Action or core source:
 pnpm build:action
 ```
 
+Build the publishable CLI bundle:
+
+```bash
+pnpm build:cli
+```
+
 Regenerate the versioned SVGs in `examples/`:
 
 ```bash

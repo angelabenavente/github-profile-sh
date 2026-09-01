@@ -14,7 +14,8 @@
     "test:run": "vitest run",
     "typecheck": "tsc --noEmit",
     "examples:generate": "node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/generate-examples.ts",
-    "build:action": "pnpm --filter @github-profile-sh/action build"
+    "build:action": "pnpm --filter @github-profile-sh/action build",
+    "build:cli": "pnpm --filter github-profile-sh build"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

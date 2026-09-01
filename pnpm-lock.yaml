@@ -53,20 +53,22 @@ importers:
         version: 0.38.4
 
   packages/cli:
-    dependencies:
+    devDependencies:
       '@clack/prompts':
         specifier: ^1.7.0
         version: 1.7.0
       '@github-profile-sh/core':
         specifier: workspace:*
         version: link:../core
-      cac:
-        specifier: ^7.0.0
-        version: 7.0.0
-    devDependencies:
       '@types/node':
         specifier: ^24.3.0
         version: 24.13.3
+      '@vercel/ncc':
+        specifier: ^0.38.4
+        version: 0.38.4
+      cac:
+        specifier: ^7.0.0
+        version: 7.0.0
 
   packages/core:
     dependencies:

@@ -49,3 +49,6 @@ Thumbs.db
 
 # pnpm
 .pnpm-store/
+
+# npm pack artifacts
+*.tgz

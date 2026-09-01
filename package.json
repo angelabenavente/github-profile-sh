@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "examples:generate": "node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/generate-examples.ts",
     "build:action": "pnpm --filter @github-profile-sh/action build",
-    "build:cli": "pnpm --filter github-profile-sh build"
+    "build:cli": "pnpm --filter github-profile-sh build",
+    "release:check": "node --experimental-strip-types --import ./scripts/register-ts.mjs scripts/release/check.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

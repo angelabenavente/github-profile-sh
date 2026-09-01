@@ -1,6 +1,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+import { ExpectedError, getErrorMessage } from '@github-profile-sh/core/errors';
+
 import { DEFAULT_CONFIG_PATH, DEFAULT_OUTPUT_PATH } from './constants.js';
 import { generateProfile } from './generate.js';
 import { utcCalendarDate } from './today.js';
@@ -37,8 +39,10 @@ export function createDefaultIO(): ActionIO {
 }
 
 export async function run(io: ActionIO = createDefaultIO()): Promise<void> {
+  let token = '';
+
   try {
-    const token = io.getInput('token', { required: true });
+    token = readRequiredToken(io);
     io.setSecret(token);
 
     const result = await (io.generate ?? generateProfile)({
@@ -53,6 +57,30 @@ export async function run(io: ActionIO = createDefaultIO()): Promise<void> {
 
     io.setOutput('svg-path', result.svgPath);
   } catch (error) {
-    io.setFailed(error instanceof Error ? error.message : String(error));
+    io.setFailed(redactSecret(getErrorMessage(error), token));
   }
+}
+
+function readRequiredToken(io: ActionIO): string {
+  let token: string;
+
+  try {
+    token = io.getInput('token', { required: true });
+  } catch (error) {
+    throw new ExpectedError('GitHub token is required.', { cause: error });
+  }
+
+  if (token.trim() === '') {
+    throw new ExpectedError('GitHub token is required.');
+  }
+
+  return token;
+}
+
+function redactSecret(text: string, secret: string): string {
+  if (secret.trim() === '') {
+    return text;
+  }
+
+  return text.split(secret).join('***');
 }

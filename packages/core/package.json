@@ -9,7 +9,8 @@
     "./github": "./src/github/index.ts",
     "./terminal": "./src/terminal/index.ts",
     "./renderer": "./src/renderer/index.ts",
-    "./animation": "./src/animation/index.ts"
+    "./animation": "./src/animation/index.ts",
+    "./errors": "./src/errors.ts"
   },
   "dependencies": {
     "octokit": "^5.0.5",

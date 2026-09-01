@@ -183,15 +183,19 @@ describe('fetchProfileStats', () => {
     });
   });
 
-  it('propagates a critical profile error', async () => {
-    const apiError = new Error('Not Found');
+  it('wraps a critical profile error without dropping the cause', async () => {
+    const apiError = Object.assign(new Error('Not Found'), { status: 404 });
 
     await expect(
       fetchProfileStats(unusedClient, 'missing', {
         today: '2026-08-29',
         fetchProfile: () => Promise.reject(apiError),
       }),
-    ).rejects.toBe(apiError);
+    ).rejects.toMatchObject({
+      name: 'ExpectedError',
+      message: 'Unable to fetch GitHub profile data: user not found.',
+      cause: apiError,
+    });
   });
 
   it('limits top languages to 3', async () => {

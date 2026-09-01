@@ -1,3 +1,5 @@
+import { ExpectedError } from '../errors.js';
+
 import type { ContributionDay } from './types.js';
 import { normalizeGitHubUsername } from './username.js';
 
@@ -78,7 +80,7 @@ export async function fetchContributionCalendar(
   });
 
   if (data.user === null) {
-    throw new Error(`GitHub user not found: ${login}`);
+    throw new ExpectedError(`GitHub user not found: ${login}`);
   }
 
   return data.user.contributionsCollection.contributionCalendar.weeks.flatMap(

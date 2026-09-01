@@ -17,6 +17,7 @@ export {
   fetchRepositoryCodeChanges,
 } from './code-changes.js';
 export { fetchContributionCalendar } from './calendar.js';
+export { wrapGitHubError } from './api-error.js';
 export { fetchProfileStats } from './stats.js';
 export type { FetchProfileStatsOptions } from './stats.js';
 export type { FetchCodeChangesOptions } from './code-changes.js';

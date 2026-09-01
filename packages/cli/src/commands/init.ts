@@ -1,10 +1,13 @@
 import type { ProfileConfig } from '@github-profile-sh/core/config/schema';
 
-import { writeProfileConfig } from '../config/write.js';
+import {
+  PROFILE_CONFIG_FILENAME,
+  writeProfileConfig,
+} from '../config/write.js';
 import { promptForConfig } from '../wizard/prompt.js';
 import { writeWorkflow } from '../workflow/write.js';
 
-import { buildSetupSummary } from './setup-summary.js';
+import { buildSetupSummary, formatGeneratedFileLine } from './setup-summary.js';
 
 export type RunInitOptions = {
   collectConfig?: () => ProfileConfig | Promise<ProfileConfig>;
@@ -19,16 +22,24 @@ export async function runInit(options: RunInitOptions = {}): Promise<void> {
     cwd: options.cwd,
     confirmOverwrite: options.confirmOverwriteConfig,
   });
-  const workflowResult = await writeWorkflow(config.update.frequency, {
-    cwd: options.cwd,
-    confirmOverwrite: options.confirmOverwriteWorkflow,
-  });
 
-  process.stdout.write(
-    buildSetupSummary({
-      configStatus: configResult.status,
-      workflowStatus: workflowResult.status,
-      frequency: config.update.frequency,
-    }),
-  );
+  try {
+    const workflowResult = await writeWorkflow(config.update.frequency, {
+      cwd: options.cwd,
+      confirmOverwrite: options.confirmOverwriteWorkflow,
+    });
+
+    process.stdout.write(
+      buildSetupSummary({
+        configStatus: configResult.status,
+        workflowStatus: workflowResult.status,
+        frequency: config.update.frequency,
+      }),
+    );
+  } catch (error) {
+    process.stdout.write(
+      `${formatGeneratedFileLine(configResult.status, PROFILE_CONFIG_FILENAME)}\n`,
+    );
+    throw error;
+  }
 }

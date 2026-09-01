@@ -1,22 +1,35 @@
 import { YAMLParseError, parse as parseYaml } from 'yaml';
 import type { ZodError } from 'zod';
 
+import { ExpectedError } from '../errors.js';
+
 import { profileConfigSchema, type ProfileConfig } from './schema.js';
 
-export function parseProfileConfig(yaml: string): ProfileConfig {
-  const value = parseYamlValue(yaml);
+export type ParseProfileConfigOptions = {
+  path?: string;
+};
+
+export function parseProfileConfig(
+  yaml: string,
+  options: ParseProfileConfigOptions = {},
+): ProfileConfig {
+  const value = parseYamlValue(yaml, options.path);
   const result = profileConfigSchema.safeParse(value);
 
   if (!result.success) {
-    throw new Error(
-      `Invalid profile config: ${formatConfigIssues(result.error)}`,
+    throw new ExpectedError(
+      formatLocatedMessage(
+        'Invalid profile config',
+        options.path,
+        formatConfigIssues(result.error),
+      ),
     );
   }
 
   return result.data;
 }
 
-function parseYamlValue(yaml: string): unknown {
+function parseYamlValue(yaml: string, path?: string): unknown {
   if (yaml.trim() === '') {
     return {};
   }
@@ -27,7 +40,10 @@ function parseYamlValue(yaml: string): unknown {
     value = parseYaml(yaml);
   } catch (error) {
     if (error instanceof YAMLParseError) {
-      throw new Error(`Invalid YAML: ${error.message}`, { cause: error });
+      throw new ExpectedError(
+        formatLocatedMessage('Invalid YAML', path, error.message),
+        { cause: error },
+      );
     }
 
     throw error;
@@ -38,6 +54,16 @@ function parseYamlValue(yaml: string): unknown {
   }
 
   return value;
+}
+
+function formatLocatedMessage(
+  prefix: string,
+  path: string | undefined,
+  detail: string,
+): string {
+  return path == null || path.trim() === ''
+    ? `${prefix}: ${detail}`
+    : `${prefix} in ${path}: ${detail}`;
 }
 
 function formatConfigIssues(error: ZodError): string {

@@ -1,4 +1,5 @@
 import { cac } from 'cac';
+import { isExpectedError } from '@github-profile-sh/core/errors';
 
 import { runInit } from './commands/init.js';
 import { NonInteractiveError, SetupCancelledError } from './wizard/prompt.js';
@@ -33,6 +34,7 @@ function isExpectedCliError(error: unknown): error is Error {
     error instanceof UsageError ||
     error instanceof SetupCancelledError ||
     error instanceof NonInteractiveError ||
+    isExpectedError(error) ||
     (error instanceof Error && error.name === 'CACError')
   );
 }

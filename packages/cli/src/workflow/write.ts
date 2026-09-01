@@ -32,6 +32,7 @@ export async function writeWorkflow(
         promptOverwrite(
           `${WORKFLOW_OVERWRITE_LABEL} already exists. Overwrite?`,
         )),
+    WORKFLOW_RELATIVE_PATH,
   );
 
   return { path, status };

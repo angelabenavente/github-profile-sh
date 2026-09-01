@@ -1,3 +1,4 @@
+import { wrapGitHubError } from './api-error.js';
 import type { FetchCodeChangesOptions } from './code-changes.js';
 import { fetchRepositoriesCodeChanges } from './code-changes.js';
 import {
@@ -79,31 +80,40 @@ export async function fetchProfileStats(
   const fetchCodeChanges =
     options.fetchCodeChanges ?? fetchRepositoriesCodeChanges;
 
-  const profile = await fetchProfile(client, username);
-  const range = contributionCalendarRange(options.today);
+  try {
+    const profile = await fetchProfile(client, username);
+    const range = contributionCalendarRange(options.today);
 
-  const [repositories, contributions] = await Promise.all([
-    fetchRepositories(client, profile.username),
-    fetchContributions(client, profile.username, range),
-  ]);
+    const [repositories, contributions] = await Promise.all([
+      fetchRepositories(client, profile.username),
+      fetchContributions(client, profile.username, range),
+    ]);
 
-  const codeChangeOptions: FetchCodeChangesOptions = {
-    sleep: options.sleep,
-    retryDelayMs: options.retryDelayMs,
-    maxRetries: options.maxRetries,
-  };
+    const codeChangeOptions: FetchCodeChangesOptions = {
+      sleep: options.sleep,
+      retryDelayMs: options.retryDelayMs,
+      maxRetries: options.maxRetries,
+    };
 
-  const [languageMaps, codeChanges] = await Promise.all([
-    fetchLanguages(client, repositories),
-    fetchCodeChanges(client, repositories, profile.username, codeChangeOptions),
-  ]);
+    const [languageMaps, codeChanges] = await Promise.all([
+      fetchLanguages(client, repositories),
+      fetchCodeChanges(
+        client,
+        repositories,
+        profile.username,
+        codeChangeOptions,
+      ),
+    ]);
 
-  return {
-    username: profile.username,
-    repos: repositories.length,
-    stars: calculateTotalStars(repositories),
-    currentStreak: calculateCurrentStreak(contributions, options.today),
-    codeChanges: toProfileCodeChanges(codeChanges),
-    topLanguages: calculateTopLanguages(languageMaps),
-  };
+    return {
+      username: profile.username,
+      repos: repositories.length,
+      stars: calculateTotalStars(repositories),
+      currentStreak: calculateCurrentStreak(contributions, options.today),
+      codeChanges: toProfileCodeChanges(codeChanges),
+      topLanguages: calculateTopLanguages(languageMaps),
+    };
+  } catch (error) {
+    throw wrapGitHubError(error);
+  }
 }

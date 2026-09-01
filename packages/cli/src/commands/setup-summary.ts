@@ -20,8 +20,8 @@ export function buildSetupSummary(options: {
   frequency: ProfileConfig['update']['frequency'];
 }): string {
   return [
-    formatFileLine(options.configStatus, PROFILE_CONFIG_FILENAME),
-    formatFileLine(options.workflowStatus, WORKFLOW_RELATIVE_PATH),
+    formatGeneratedFileLine(options.configStatus, PROFILE_CONFIG_FILENAME),
+    formatGeneratedFileLine(options.workflowStatus, WORKFLOW_RELATIVE_PATH),
     '',
     'Setup complete.',
     '',
@@ -39,7 +39,10 @@ export function buildSetupSummary(options: {
   ].join('\n');
 }
 
-function formatFileLine(status: GeneratedFileStatus, path: string): string {
+export function formatGeneratedFileLine(
+  status: GeneratedFileStatus,
+  path: string,
+): string {
   switch (status) {
     case 'created':
       return `✓ Created ${path}`;

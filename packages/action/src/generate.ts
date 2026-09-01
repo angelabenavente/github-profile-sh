@@ -4,8 +4,14 @@ import { dirname, resolve } from 'node:path';
 import { createAnimationTimeline } from '@github-profile-sh/core/animation';
 import { parseProfileConfig } from '@github-profile-sh/core/config';
 import {
+  ExpectedError,
+  getErrorMessage,
+  isExpectedError,
+} from '@github-profile-sh/core/errors';
+import {
   createGitHubClient,
   fetchProfileStats,
+  wrapGitHubError,
   type GitHubClient,
   type ProfileStats,
 } from '@github-profile-sh/core/github';
@@ -35,6 +41,14 @@ export type GenerateProfileResult = {
 export async function generateProfile(
   options: GenerateProfileOptions,
 ): Promise<GenerateProfileResult> {
+  if (options.token.trim() === '') {
+    throw new ExpectedError('GitHub token is required.');
+  }
+
+  if (options.username.trim() === '') {
+    throw new ExpectedError('Unable to resolve GitHub username.');
+  }
+
   const cwd = options.cwd ?? process.cwd();
   const configPath = resolve(cwd, options.configPath);
   const svgPath = resolve(cwd, options.outputPath);
@@ -45,25 +59,75 @@ export async function generateProfile(
   log('Reading configuration...');
   const config = parseProfileConfig(
     await readConfigFile(configPath, options.configPath),
+    { path: options.configPath },
   );
 
   log('Fetching public profile data...');
   const client = createClient({ token: options.token });
-  const stats = await fetchStats(client, options.username, {
-    today: options.today,
-  });
+  const stats = await fetchPublicStats(
+    fetchStats,
+    client,
+    options.username,
+    options.today,
+  );
 
   log('Generating SVG...');
-  const terminal = buildTerminalOutput(stats, config);
-  const svg = renderTerminalSvg(terminal, {
-    timeline: createAnimationTimeline(terminal, config.animation),
-  });
+  const svg = renderProfileSvg(stats, config);
 
-  await mkdir(dirname(svgPath), { recursive: true });
-  await writeFile(svgPath, svg, { encoding: 'utf8' });
+  await writeSvgFile(svgPath, svg, options.outputPath);
   log(`Profile generated: ${options.outputPath}`);
 
   return { svgPath };
+}
+
+async function fetchPublicStats(
+  fetchStats: NonNullable<GenerateProfileOptions['fetchProfileStats']>,
+  client: GitHubClient,
+  username: string,
+  today: string,
+): Promise<ProfileStats> {
+  try {
+    return await fetchStats(client, username, { today });
+  } catch (error) {
+    throw wrapGitHubError(error);
+  }
+}
+
+function renderProfileSvg(
+  stats: ProfileStats,
+  config: ReturnType<typeof parseProfileConfig>,
+): string {
+  try {
+    const terminal = buildTerminalOutput(stats, config);
+    return renderTerminalSvg(terminal, {
+      timeline: createAnimationTimeline(terminal, config.animation),
+    });
+  } catch (error) {
+    if (isExpectedError(error)) {
+      throw error;
+    }
+
+    throw new ExpectedError(
+      `Unable to render profile SVG: ${getErrorMessage(error)}`,
+      { cause: error },
+    );
+  }
+}
+
+async function writeSvgFile(
+  absolutePath: string,
+  svg: string,
+  requestedPath: string,
+): Promise<void> {
+  try {
+    await mkdir(dirname(absolutePath), { recursive: true });
+    await writeFile(absolutePath, svg, { encoding: 'utf8' });
+  } catch (error) {
+    throw new ExpectedError(
+      `Unable to write SVG to: ${requestedPath}: ${getErrorMessage(error)}`,
+      { cause: error },
+    );
+  }
 }
 
 async function readConfigFile(
@@ -73,17 +137,22 @@ async function readConfigFile(
   try {
     return await readFile(absolutePath, { encoding: 'utf8' });
   } catch (error) {
-    if (
-      error !== null &&
-      typeof error === 'object' &&
-      'code' in error &&
-      error.code === 'ENOENT'
-    ) {
-      throw new Error(`Configuration file not found: ${requestedPath}`, {
-        cause: error,
-      });
+    if (isNodeError(error) && error.code === 'ENOENT') {
+      throw new ExpectedError(
+        `Configuration file not found: ${requestedPath}`,
+        {
+          cause: error,
+        },
+      );
     }
 
-    throw error;
+    throw new ExpectedError(
+      `Unable to read configuration file: ${requestedPath}: ${getErrorMessage(error)}`,
+      { cause: error },
+    );
   }
+}
+
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && 'code' in error;
 }

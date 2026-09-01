@@ -280,6 +280,14 @@ sections: null
         /^Invalid YAML:/,
       );
     });
+
+    it('includes the file path when one is provided', () => {
+      expect(() =>
+        parseProfileConfig('sections: true\n', {
+          path: 'github-profile-sh.yml',
+        }),
+      ).toThrowError(/^Invalid profile config in github-profile-sh.yml:/);
+    });
   });
 
   describe('explicit values', () => {

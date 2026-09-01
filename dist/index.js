@@ -59353,7 +59353,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(1755);
+/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7780);
 
 await (0,_run_js__WEBPACK_IMPORTED_MODULE_0__/* .run */ .e)();
 
@@ -59362,7 +59362,7 @@ __webpack_async_result__();
 
 /***/ }),
 
-/***/ 1755:
+/***/ 7780:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -59377,6 +59377,45 @@ __nccwpck_require__.d(__webpack_exports__, {
 var lib_core = __nccwpck_require__(5437);
 // EXTERNAL MODULE: ../../node_modules/.pnpm/@actions+github@7.0.0/node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(4019);
+;// CONCATENATED MODULE: ../core/src/errors.ts
+class ExpectedError extends Error {
+    constructor(message, options) {
+        super(message, options);
+        this.name = 'ExpectedError';
+    }
+}
+function isExpectedError(error) {
+    return error instanceof ExpectedError;
+}
+function getErrorMessage(error) {
+    if (error instanceof Error && error.message.trim() !== '') {
+        return error.message;
+    }
+    if (typeof error === 'string' && error.trim() !== '') {
+        return error;
+    }
+    return 'Unknown error';
+}
+function getErrorStatus(error) {
+    if (error === null || typeof error !== 'object') {
+        return undefined;
+    }
+    if ('status' in error && typeof error.status === 'number') {
+        return error.status;
+    }
+    if ('statusCode' in error && typeof error.statusCode === 'number') {
+        return error.statusCode;
+    }
+    if ('response' in error &&
+        error.response !== null &&
+        typeof error.response === 'object' &&
+        'status' in error.response &&
+        typeof error.response.status === 'number') {
+        return error.response.status;
+    }
+    return undefined;
+}
+
 ;// CONCATENATED MODULE: ./src/constants.ts
 const DEFAULT_CONFIG_PATH = 'github-profile-sh.yml';
 const DEFAULT_OUTPUT_PATH = 'github-profile.svg';
@@ -67371,15 +67410,16 @@ const defaultProfileConfig = profileConfigSchema.parse({});
 ;// CONCATENATED MODULE: ../core/src/config/parse.ts
 
 
-function parseProfileConfig(yaml) {
-    const value = parseYamlValue(yaml);
+
+function parseProfileConfig(yaml, options = {}) {
+    const value = parseYamlValue(yaml, options.path);
     const result = profileConfigSchema.safeParse(value);
     if (!result.success) {
-        throw new Error(`Invalid profile config: ${formatConfigIssues(result.error)}`);
+        throw new ExpectedError(formatLocatedMessage('Invalid profile config', options.path, formatConfigIssues(result.error)));
     }
     return result.data;
 }
-function parseYamlValue(yaml) {
+function parseYamlValue(yaml, path) {
     if (yaml.trim() === '') {
         return {};
     }
@@ -67389,7 +67429,7 @@ function parseYamlValue(yaml) {
     }
     catch (error) {
         if (error instanceof dist/* YAMLParseError */.XT) {
-            throw new Error(`Invalid YAML: ${error.message}`, { cause: error });
+            throw new ExpectedError(formatLocatedMessage('Invalid YAML', path, error.message), { cause: error });
         }
         throw error;
     }
@@ -67397,6 +67437,11 @@ function parseYamlValue(yaml) {
         return {};
     }
     return value;
+}
+function formatLocatedMessage(prefix, path, detail) {
+    return path == null || path.trim() === ''
+        ? `${prefix}: ${detail}`
+        : `${prefix} in ${path}: ${detail}`;
 }
 function formatConfigIssues(error) {
     return error.issues
@@ -77623,12 +77668,60 @@ function createGitHubClient(options = {}) {
 }
 
 ;// CONCATENATED MODULE: ../core/src/github/username.ts
+
 function normalizeGitHubUsername(username) {
     const normalized = username.trim();
     if (normalized === '') {
-        throw new Error('Invalid GitHub username: expected a non-empty string');
+        throw new ExpectedError('Invalid GitHub username: expected a non-empty string');
     }
     return normalized;
+}
+
+;// CONCATENATED MODULE: ../core/src/github/profile.ts
+
+async function fetchGitHubProfile(client, username) {
+    const normalizedUsername = normalizeGitHubUsername(username);
+    const { data } = await client.rest.users.getByUsername({
+        username: normalizedUsername,
+    });
+    return {
+        username: data.login,
+        name: data.name,
+        bio: data.bio,
+        publicRepos: data.public_repos,
+        followers: data.followers,
+        following: data.following,
+        createdAt: data.created_at,
+        profileUrl: data.html_url,
+    };
+}
+
+;// CONCATENATED MODULE: ../core/src/github/repositories.ts
+
+function toPublicRepository(repo) {
+    return {
+        name: repo.name,
+        fullName: repo.full_name,
+        stars: repo.stargazers_count ?? 0,
+        forks: repo.forks_count ?? 0,
+        language: repo.language ?? null,
+        isFork: repo.fork ?? false,
+        archived: repo.archived ?? false,
+        repoUrl: repo.html_url,
+    };
+}
+async function fetchPublicRepositories(client, username) {
+    const normalizedUsername = normalizeGitHubUsername(username);
+    const repositories = await client.paginate(client.rest.repos.listForUser, {
+        username: normalizedUsername,
+        per_page: 100,
+        type: 'owner',
+    });
+    return repositories.map(toPublicRepository);
+}
+// v0.1: every public owned repo counts, including forks.
+function calculateTotalStars(repositories) {
+    return repositories.reduce((total, repository) => total + repository.stars, 0);
 }
 
 ;// CONCATENATED MODULE: ../core/src/github/code-changes.ts
@@ -77806,6 +77899,7 @@ async function fetchRepositoriesCodeChanges(client, repositories, username, opti
 
 ;// CONCATENATED MODULE: ../core/src/github/calendar.ts
 
+
 const contributionCalendarQuery = `
 query ContributionCalendar($login: String!, $from: DateTime!, $to: DateTime!) {
   user(login: $login) {
@@ -77847,7 +77941,7 @@ async function fetchContributionCalendar(client, username, range) {
         to: `${range.to}T23:59:59.999Z`,
     });
     if (data.user === null) {
-        throw new Error(`GitHub user not found: ${login}`);
+        throw new ExpectedError(`GitHub user not found: ${login}`);
     }
     return data.user.contributionsCollection.contributionCalendar.weeks.flatMap((week) => week.contributionDays.map((day) => ({
         date: day.date,
@@ -77855,51 +77949,51 @@ async function fetchContributionCalendar(client, username, range) {
     })));
 }
 
-;// CONCATENATED MODULE: ../core/src/github/profile.ts
+;// CONCATENATED MODULE: ../core/src/github/api-error.ts
 
-async function fetchGitHubProfile(client, username) {
-    const normalizedUsername = normalizeGitHubUsername(username);
-    const { data } = await client.rest.users.getByUsername({
-        username: normalizedUsername,
+function wrapGitHubError(error) {
+    if (isExpectedError(error)) {
+        return error;
+    }
+    const status = getErrorStatus(error);
+    const message = getErrorMessage(error);
+    if (api_error_isRateLimitError(error, status, message)) {
+        return new ExpectedError('GitHub API rate limit reached. Try again later.', { cause: error });
+    }
+    if (status === 404 || /^GitHub user not found:/.test(message)) {
+        return new ExpectedError(message.startsWith('GitHub user not found:')
+            ? message
+            : 'Unable to fetch GitHub profile data: user not found.', { cause: error });
+    }
+    if (status != null) {
+        return new ExpectedError(`GitHub API request failed (${status}).`, {
+            cause: error,
+        });
+    }
+    if (isGraphqlError(error, message)) {
+        return new ExpectedError(`GitHub GraphQL request failed: ${message}`, {
+            cause: error,
+        });
+    }
+    return new ExpectedError(`Unable to fetch GitHub profile data: ${message}`, {
+        cause: error,
     });
-    return {
-        username: data.login,
-        name: data.name,
-        bio: data.bio,
-        publicRepos: data.public_repos,
-        followers: data.followers,
-        following: data.following,
-        createdAt: data.created_at,
-        profileUrl: data.html_url,
-    };
 }
-
-;// CONCATENATED MODULE: ../core/src/github/repositories.ts
-
-function toPublicRepository(repo) {
-    return {
-        name: repo.name,
-        fullName: repo.full_name,
-        stars: repo.stargazers_count ?? 0,
-        forks: repo.forks_count ?? 0,
-        language: repo.language ?? null,
-        isFork: repo.fork ?? false,
-        archived: repo.archived ?? false,
-        repoUrl: repo.html_url,
-    };
+function api_error_isRateLimitError(error, status, message) {
+    if (status === 429) {
+        return true;
+    }
+    if (/rate limit/i.test(message)) {
+        return true;
+    }
+    return status === 403 && /secondary rate|abuse detection/i.test(message);
 }
-async function fetchPublicRepositories(client, username) {
-    const normalizedUsername = normalizeGitHubUsername(username);
-    const repositories = await client.paginate(client.rest.repos.listForUser, {
-        username: normalizedUsername,
-        per_page: 100,
-        type: 'owner',
-    });
-    return repositories.map(toPublicRepository);
-}
-// v0.1: every public owned repo counts, including forks.
-function calculateTotalStars(repositories) {
-    return repositories.reduce((total, repository) => total + repository.stars, 0);
+function isGraphqlError(error, message) {
+    if (/graphql/i.test(message)) {
+        return true;
+    }
+    return (error instanceof Error &&
+        (error.name === 'GraphqlResponseError' || error.name === 'GraphqlError'));
 }
 
 ;// CONCATENATED MODULE: ../core/src/github/languages.ts
@@ -77985,6 +78079,7 @@ function calculateCurrentStreak(days, today) {
 
 
 
+
 function toProfileCodeChanges(codeChanges) {
     return {
         additions: codeChanges.additions,
@@ -77999,30 +78094,46 @@ async function fetchProfileStats(client, username, options) {
     const fetchContributions = options.fetchContributions ?? fetchContributionCalendar;
     const fetchLanguages = options.fetchLanguages ?? fetchRepositoriesLanguages;
     const fetchCodeChanges = options.fetchCodeChanges ?? fetchRepositoriesCodeChanges;
-    const profile = await fetchProfile(client, username);
-    const range = contributionCalendarRange(options.today);
-    const [repositories, contributions] = await Promise.all([
-        fetchRepositories(client, profile.username),
-        fetchContributions(client, profile.username, range),
-    ]);
-    const codeChangeOptions = {
-        sleep: options.sleep,
-        retryDelayMs: options.retryDelayMs,
-        maxRetries: options.maxRetries,
-    };
-    const [languageMaps, codeChanges] = await Promise.all([
-        fetchLanguages(client, repositories),
-        fetchCodeChanges(client, repositories, profile.username, codeChangeOptions),
-    ]);
-    return {
-        username: profile.username,
-        repos: repositories.length,
-        stars: calculateTotalStars(repositories),
-        currentStreak: calculateCurrentStreak(contributions, options.today),
-        codeChanges: toProfileCodeChanges(codeChanges),
-        topLanguages: calculateTopLanguages(languageMaps),
-    };
+    try {
+        const profile = await fetchProfile(client, username);
+        const range = contributionCalendarRange(options.today);
+        const [repositories, contributions] = await Promise.all([
+            fetchRepositories(client, profile.username),
+            fetchContributions(client, profile.username, range),
+        ]);
+        const codeChangeOptions = {
+            sleep: options.sleep,
+            retryDelayMs: options.retryDelayMs,
+            maxRetries: options.maxRetries,
+        };
+        const [languageMaps, codeChanges] = await Promise.all([
+            fetchLanguages(client, repositories),
+            fetchCodeChanges(client, repositories, profile.username, codeChangeOptions),
+        ]);
+        return {
+            username: profile.username,
+            repos: repositories.length,
+            stars: calculateTotalStars(repositories),
+            currentStreak: calculateCurrentStreak(contributions, options.today),
+            codeChanges: toProfileCodeChanges(codeChanges),
+            topLanguages: calculateTopLanguages(languageMaps),
+        };
+    }
+    catch (error) {
+        throw wrapGitHubError(error);
+    }
 }
+
+;// CONCATENATED MODULE: ../core/src/github/index.ts
+
+
+
+
+
+
+
+
+
 
 ;// CONCATENATED MODULE: ../core/src/renderer/escape.ts
 const xmlEscapes = {
@@ -78393,7 +78504,14 @@ function buildTerminalOutput(stats, config) {
 
 
 
+
 async function generateProfile(options) {
+    if (options.token.trim() === '') {
+        throw new ExpectedError('GitHub token is required.');
+    }
+    if (options.username.trim() === '') {
+        throw new ExpectedError('Unable to resolve GitHub username.');
+    }
     const cwd = options.cwd ?? process.cwd();
     const configPath = (0,external_node_path_namespaceObject.resolve)(cwd, options.configPath);
     const svgPath = (0,external_node_path_namespaceObject.resolve)(cwd, options.outputPath);
@@ -78401,37 +78519,62 @@ async function generateProfile(options) {
     const createClient = options.createGitHubClient ?? createGitHubClient;
     const fetchStats = options.fetchProfileStats ?? fetchProfileStats;
     log('Reading configuration...');
-    const config = parseProfileConfig(await readConfigFile(configPath, options.configPath));
+    const config = parseProfileConfig(await readConfigFile(configPath, options.configPath), { path: options.configPath });
     log('Fetching public profile data...');
     const client = createClient({ token: options.token });
-    const stats = await fetchStats(client, options.username, {
-        today: options.today,
-    });
+    const stats = await fetchPublicStats(fetchStats, client, options.username, options.today);
     log('Generating SVG...');
-    const terminal = buildTerminalOutput(stats, config);
-    const svg = renderTerminalSvg(terminal, {
-        timeline: createAnimationTimeline(terminal, config.animation),
-    });
-    await (0,promises_namespaceObject.mkdir)((0,external_node_path_namespaceObject.dirname)(svgPath), { recursive: true });
-    await (0,promises_namespaceObject.writeFile)(svgPath, svg, { encoding: 'utf8' });
+    const svg = renderProfileSvg(stats, config);
+    await writeSvgFile(svgPath, svg, options.outputPath);
     log(`Profile generated: ${options.outputPath}`);
     return { svgPath };
+}
+async function fetchPublicStats(fetchStats, client, username, today) {
+    try {
+        return await fetchStats(client, username, { today });
+    }
+    catch (error) {
+        throw wrapGitHubError(error);
+    }
+}
+function renderProfileSvg(stats, config) {
+    try {
+        const terminal = buildTerminalOutput(stats, config);
+        return renderTerminalSvg(terminal, {
+            timeline: createAnimationTimeline(terminal, config.animation),
+        });
+    }
+    catch (error) {
+        if (isExpectedError(error)) {
+            throw error;
+        }
+        throw new ExpectedError(`Unable to render profile SVG: ${getErrorMessage(error)}`, { cause: error });
+    }
+}
+async function writeSvgFile(absolutePath, svg, requestedPath) {
+    try {
+        await (0,promises_namespaceObject.mkdir)((0,external_node_path_namespaceObject.dirname)(absolutePath), { recursive: true });
+        await (0,promises_namespaceObject.writeFile)(absolutePath, svg, { encoding: 'utf8' });
+    }
+    catch (error) {
+        throw new ExpectedError(`Unable to write SVG to: ${requestedPath}: ${getErrorMessage(error)}`, { cause: error });
+    }
 }
 async function readConfigFile(absolutePath, requestedPath) {
     try {
         return await (0,promises_namespaceObject.readFile)(absolutePath, { encoding: 'utf8' });
     }
     catch (error) {
-        if (error !== null &&
-            typeof error === 'object' &&
-            'code' in error &&
-            error.code === 'ENOENT') {
-            throw new Error(`Configuration file not found: ${requestedPath}`, {
+        if (isNodeError(error) && error.code === 'ENOENT') {
+            throw new ExpectedError(`Configuration file not found: ${requestedPath}`, {
                 cause: error,
             });
         }
-        throw error;
+        throw new ExpectedError(`Unable to read configuration file: ${requestedPath}: ${getErrorMessage(error)}`, { cause: error });
     }
+}
+function isNodeError(error) {
+    return error instanceof Error && 'code' in error;
 }
 
 ;// CONCATENATED MODULE: ./src/today.ts
@@ -78440,6 +78583,7 @@ function utcCalendarDate(now = new Date()) {
 }
 
 ;// CONCATENATED MODULE: ./src/run.ts
+
 
 
 
@@ -78464,8 +78608,9 @@ function createDefaultIO() {
     };
 }
 async function run(io = createDefaultIO()) {
+    let token = '';
     try {
-        const token = io.getInput('token', { required: true });
+        token = readRequiredToken(io);
         io.setSecret(token);
         const result = await (io.generate ?? generateProfile)({
             configPath: io.getInput('config') || DEFAULT_CONFIG_PATH,
@@ -78479,8 +78624,27 @@ async function run(io = createDefaultIO()) {
         io.setOutput('svg-path', result.svgPath);
     }
     catch (error) {
-        io.setFailed(error instanceof Error ? error.message : String(error));
+        io.setFailed(redactSecret(getErrorMessage(error), token));
     }
+}
+function readRequiredToken(io) {
+    let token;
+    try {
+        token = io.getInput('token', { required: true });
+    }
+    catch (error) {
+        throw new ExpectedError('GitHub token is required.', { cause: error });
+    }
+    if (token.trim() === '') {
+        throw new ExpectedError('GitHub token is required.');
+    }
+    return token;
+}
+function redactSecret(text, secret) {
+    if (secret.trim() === '') {
+        return text;
+    }
+    return text.split(secret).join('***');
 }
 
 

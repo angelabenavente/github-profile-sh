@@ -44,6 +44,10 @@ version. The Action is consumed from this repository by git tag, not from npm.
 
 10. Verify npm (`npm view github-profile-sh version`) and the GitHub Release.
 
+The workflow creates the GitHub Release with `--generate-notes`. Curated
+notes for this version are in `docs/releases/v0.1.0.md`; edit the GitHub
+Release body if you want those instead of the generated commit list.
+
 Do not push `v1` as the release tag. That pattern would not match
 `v*.*.*` anyway, and must not publish npm.
 

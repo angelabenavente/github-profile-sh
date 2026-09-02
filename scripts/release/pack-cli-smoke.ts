@@ -53,6 +53,18 @@ try {
     throw new Error('Isolated CLI --help did not print the expected usage.');
   }
 
+  const version = run(
+    'npx',
+    ['--no-install', 'github-profile-sh', '--version'],
+    smokeDir,
+  );
+
+  if (!version.stdout.includes('0.1.0')) {
+    throw new Error(
+      `Isolated CLI --version did not print 0.1.0: ${version.stdout}`,
+    );
+  }
+
   const bundle = readFileSync(
     join(smokeDir, 'node_modules/github-profile-sh/dist/index.js'),
     'utf8',

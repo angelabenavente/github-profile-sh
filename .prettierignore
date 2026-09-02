@@ -4,3 +4,4 @@ build
 out
 coverage
 pnpm-lock.yaml
+examples/*.svg

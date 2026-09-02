@@ -11,7 +11,9 @@ version. The Action is consumed from this repository by git tag, not from npm.
 2. Confirm `packages/cli/package.json` is `0.1.0` (already true for v0.1).
    On later releases, update that version and `cli.version(...)` in
    `packages/cli/src/cli.ts` so they stay in sync. Do not publish
-   `@github-profile-sh/core`.
+   `@github-profile-sh/core`. Keep root `LICENSE` and
+   `packages/cli/LICENSE` identical (`MIT`, plus the CC BY 4.0 note for
+   generated SVGs).
 3. Run `pnpm install` if lockfile changes are required.
 4. Run `pnpm release:check`.
 5. Commit any intended release changes yourself.

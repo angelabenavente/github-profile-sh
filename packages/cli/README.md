@@ -14,3 +14,6 @@ See the [repository README](https://github.com/angelabenavente/github-profile-sh
 for configuration, animation modes, and development setup.
 
 Requires Node.js 24+.
+
+The software is MIT. Generated profile SVGs are CC BY 4.0. See
+[LICENSE](./LICENSE).

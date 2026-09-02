@@ -62,6 +62,15 @@ try {
     throw new Error('Isolated CLI bundle still contains workspace:*.');
   }
 
+  const license = readFileSync(
+    join(smokeDir, 'node_modules/github-profile-sh/LICENSE'),
+    'utf8',
+  );
+
+  if (!license.includes('MIT License') || !license.includes('CC BY 4.0')) {
+    throw new Error('Isolated CLI tarball is missing the expected LICENSE.');
+  }
+
   process.stdout.write(`CLI tarball smoke passed: ${packed}\n`);
 } finally {
   rmSync(packDir, { recursive: true, force: true });

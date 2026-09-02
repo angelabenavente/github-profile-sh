@@ -11,6 +11,7 @@ const manifest = JSON.parse(
 ) as {
   name: string;
   private?: boolean;
+  license?: string;
   bin?: Record<string, string>;
   engines?: { node?: string };
   files?: string[];
@@ -34,8 +35,12 @@ describe('CLI package manifest', () => {
     expect(manifest.engines?.node).toBe('>=24');
   });
 
-  it('publishes only the built CLI and package README', () => {
-    expect(manifest.files).toEqual(['dist', 'README.md']);
+  it('publishes the built CLI, package README, and license', () => {
+    expect(manifest.license).toBe('MIT');
+    expect(manifest.files).toEqual(['dist', 'README.md', 'LICENSE']);
+    expect(readFileSync(join(cliRoot, 'LICENSE'), 'utf8')).toBe(
+      readFileSync(join(repoRoot, 'LICENSE'), 'utf8'),
+    );
   });
 
   it('does not declare workspace or unpublished runtime dependencies', () => {

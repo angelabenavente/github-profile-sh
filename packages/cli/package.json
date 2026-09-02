@@ -6,9 +6,11 @@
   "bin": {
     "github-profile-sh": "./dist/index.js"
   },
+  "license": "MIT",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=24"

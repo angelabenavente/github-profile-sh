@@ -11,6 +11,7 @@ import {
 import { formatMetricLine } from '../terminal/format.js';
 import type { TerminalLine, TerminalOutput } from '../terminal/types.js';
 
+import { generatedSvgAttributionComment } from './attribution.js';
 import { escapeXml } from './escape.js';
 import {
   commandTextX,
@@ -292,5 +293,5 @@ export function renderTerminalSvg(
     .filter((fragment) => fragment !== '')
     .join('');
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${String(layout.width)}" height="${String(height)}" viewBox="0 0 ${String(layout.width)} ${String(height)}" role="img"><title>github-profile.sh</title><desc>${svgDescription}</desc>${renderStyle()}${renderBackground(height)}${body}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${String(layout.width)}" height="${String(height)}" viewBox="0 0 ${String(layout.width)} ${String(height)}" role="img">${generatedSvgAttributionComment}<title>github-profile.sh</title><desc>${svgDescription}</desc>${renderStyle()}${renderBackground(height)}${body}</svg>`;
 }

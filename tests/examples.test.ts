@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 import { parseProfileConfig } from '../packages/core/src/config/index.js';
+import { generatedSvgAttributionComment } from '../packages/core/src/renderer/index.js';
 import {
   exampleFileContents,
   exampleFiles,
@@ -44,6 +45,7 @@ describe('example SVGs', () => {
     for (const svg of [typing, staticSvg]) {
       expect(svg.startsWith('<svg ')).toBe(true);
       expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
+      expect(svg).toContain(generatedSvgAttributionComment);
       expect(svg).toContain('github-profile.sh');
       expect(svg).toContain('fetching public profile data...');
       expect(svg).toContain('repos');

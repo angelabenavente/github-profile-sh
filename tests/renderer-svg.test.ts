@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  ORIGINAL_REPOSITORY_URL,
   escapeXml,
+  generatedSvgAttributionComment,
   renderTerminalSvg,
   truncateLanguageName,
 } from '../packages/core/src/renderer/index.js';
@@ -84,6 +86,10 @@ describe('renderTerminalSvg', () => {
       true,
     );
     expect(svg).toContain('role="img"');
+    expect(svg).toContain(generatedSvgAttributionComment);
+    expect(generatedSvgAttributionComment).toContain(ORIGINAL_REPOSITORY_URL);
+    expect(generatedSvgAttributionComment).toContain('CC BY 4.0');
+    expect(generatedSvgAttributionComment.slice(4, -3)).not.toContain('--');
     expect(svg).toContain('<title>github-profile.sh</title>');
     expect(svg).toContain('<desc>');
     expect(svg.endsWith('</svg>')).toBe(true);

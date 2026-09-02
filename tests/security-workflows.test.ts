@@ -82,7 +82,7 @@ describe('CLI package files', () => {
       files?: string[];
     };
 
-    expect(manifest.files).toEqual(['dist', 'README.md']);
+    expect(manifest.files).toEqual(['dist', 'README.md', 'LICENSE']);
     expect(manifest.files).not.toContain('.env');
     expect(manifest.files).not.toContain('.github');
     expect(manifest.files).not.toContain('src');

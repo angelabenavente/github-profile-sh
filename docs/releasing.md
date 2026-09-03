@@ -2,15 +2,15 @@
 
 Maintainer process for a public release. Do not put credentials in this file.
 
-The first public release is `0.1.0`. The CLI package is already at that
-version. The Action is consumed from this repository by git tag, not from npm.
+The current CLI version is `1.0.0`. `0.1.0` is already on npm and must not
+be republished. The Action is consumed from this repository by git tag,
+not from npm.
 
 ## Before the tag
 
 1. Confirm `main` is green on CI.
-2. Confirm `packages/cli/package.json` is `0.1.0` (already true for v0.1).
-   On later releases, update that version and `cli.version(...)` in
-   `packages/cli/src/cli.ts` so they stay in sync. Do not publish
+2. Confirm `packages/cli/package.json` is `1.0.0` and matches
+   `cli.version(...)` in `packages/cli/src/cli.ts`. Do not publish
    `@github-profile-sh/core`. Keep root `LICENSE` and
    `packages/cli/LICENSE` identical (`MIT`, plus the CC BY 4.0 note for
    generated SVGs).
@@ -26,26 +26,26 @@ version. The Action is consumed from this repository by git tag, not from npm.
 7. Create the annotated tag yourself, matching the CLI version:
 
    ```bash
-   git tag -a v0.1.0 -m "v0.1.0"
+   git tag -a v1.0.0 -m "v1.0.0"
    ```
 
 8. Push only that tag yourself:
 
    ```bash
-   git push origin v0.1.0
+   git push origin v1.0.0
    ```
 
 9. The **Release** workflow runs on `v*.*.*` tags. It:
 
    - runs `pnpm release:check`;
-   - checks that `v0.1.0` matches `packages/cli` version `0.1.0`;
+   - checks that `v1.0.0` matches `packages/cli` version `1.0.0`;
    - publishes `github-profile-sh` with `npm publish` from `packages/cli`;
    - creates a GitHub Release with generated notes.
 
 10. Verify npm (`npm view github-profile-sh version`) and the GitHub Release.
 
 The workflow creates the GitHub Release with `--generate-notes`. Curated
-notes for this version are in `docs/releases/v0.1.0.md`; edit the GitHub
+notes for this version are in `docs/releases/v1.0.0.md`; edit the GitHub
 Release body if you want those instead of the generated commit list.
 
 Do not push `v1` as the release tag. That pattern would not match
@@ -55,11 +55,11 @@ Do not push `v1` as the release tag. That pattern would not match
 
 Generated user workflows use `angelabenavente/github-profile-sh@v1`.
 
-Do **not** create or move `v1` from CI. After `v0.1.0` is tagged and you
+Do **not** create or move `v1` from CI. After `v1.0.0` is tagged and you
 want `@v1` to resolve:
 
 ```bash
-git tag -f v1 v0.1.0
+git tag -f v1 v1.0.0
 git push -f origin v1
 ```
 

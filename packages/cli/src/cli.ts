@@ -21,7 +21,7 @@ export function createCli(init: () => void | Promise<void> = runInit) {
     });
     return sections;
   });
-  cli.version('0.1.0');
+  cli.version('1.0.0');
   cli.command('init', 'Configure github-profile.sh').action(async () => {
     await init();
   });

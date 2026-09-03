@@ -59,9 +59,9 @@ try {
     smokeDir,
   );
 
-  if (!version.stdout.includes('0.1.0')) {
+  if (!version.stdout.includes(manifest.version)) {
     throw new Error(
-      `Isolated CLI --version did not print 0.1.0: ${version.stdout}`,
+      `Isolated CLI --version did not print ${manifest.version}: ${version.stdout}`,
     );
   }
 

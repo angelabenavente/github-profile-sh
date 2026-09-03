@@ -45,6 +45,6 @@ describe('assertTagMatchesCliVersion', () => {
 
 describe('CLI package version', () => {
   it('is the first public release version', () => {
-    expect(readCliPackageVersion()).toBe('0.1.0');
+    expect(readCliPackageVersion()).toBe('1.0.0');
   });
 });

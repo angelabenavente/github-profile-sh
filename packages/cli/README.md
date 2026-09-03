@@ -1,5 +1,7 @@
 # github-profile.sh
 
+[![npm downloads](https://img.shields.io/npm/dt/github-profile-sh)](https://www.npmjs.com/package/github-profile-sh)
+
 Animated GitHub profile stats rendered as a terminal.
 
 ```bash

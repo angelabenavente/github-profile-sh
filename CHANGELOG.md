@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0
+
+- First 1.x npm release of github-profile-sh.
+
 ## 0.1.0
 
 - Initial public release of github-profile.sh.

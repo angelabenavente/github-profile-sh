@@ -19,14 +19,6 @@ export const layout = {
   radius: 10,
 } as const;
 
-export const palette = {
-  background: '#0d1117',
-  foreground: '#e6edf3',
-  muted: '#8b949e',
-  accent: '#3fb950',
-  track: '#21262d',
-} as const;
-
 export const fontFamily =
   'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
 

@@ -15,7 +15,7 @@ const completeConfig = {
     codeChanges: false,
     languages: true,
   },
-  theme: 'dark',
+  theme: 'dark' as const,
   animation: {
     enabled: true,
     mode: 'typing' as const,

@@ -11,6 +11,13 @@ import {
 import { formatMetricLine } from '../terminal/format.js';
 import type { TerminalLine, TerminalOutput } from '../terminal/types.js';
 
+import {
+  defaultThemeId,
+  getTheme,
+  type ThemeId,
+  type ThemePalette,
+} from '../theme/index.js';
+
 import { generatedSvgAttributionComment } from './attribution.js';
 import { escapeXml } from './escape.js';
 import {
@@ -20,11 +27,10 @@ import {
   languagePercentX,
   layout,
   measureTerminalLayout,
-  palette,
 } from './layout.js';
 import { truncateLanguageName } from './text.js';
 
-function renderStyle(): string {
+function renderStyle(palette: ThemePalette): string {
   return `<style>
     text {
       font-family: ${fontFamily};
@@ -42,7 +48,7 @@ function renderStyle(): string {
   </style>`;
 }
 
-function renderBackground(height: number): string {
+function renderBackground(height: number, palette: ThemePalette): string {
   return `<rect width="${String(layout.width)}" height="${String(height)}" rx="${String(layout.radius)}" fill="${palette.background}"/>`;
 }
 
@@ -251,12 +257,14 @@ const svgDescription =
 
 export type RenderTerminalSvgOptions = {
   timeline?: AnimationTimeline;
+  theme?: ThemeId;
 };
 
 export function renderTerminalSvg(
   output: TerminalOutput,
   options: RenderTerminalSvgOptions = {},
 ): string {
+  const palette = getTheme(options.theme ?? defaultThemeId);
   const { height, baselines } = measureTerminalLayout(output.lines);
   const timeline = options.timeline;
   const reveals = timeline
@@ -293,5 +301,5 @@ export function renderTerminalSvg(
     .filter((fragment) => fragment !== '')
     .join('');
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${String(layout.width)}" height="${String(height)}" viewBox="0 0 ${String(layout.width)} ${String(height)}" role="img">${generatedSvgAttributionComment}<title>github-profile.sh</title><desc>${svgDescription}</desc>${renderStyle()}${renderBackground(height)}${body}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${String(layout.width)}" height="${String(height)}" viewBox="0 0 ${String(layout.width)} ${String(height)}" role="img">${generatedSvgAttributionComment}<title>github-profile.sh</title><desc>${svgDescription}</desc>${renderStyle(palette)}${renderBackground(height, palette)}${body}</svg>`;
 }

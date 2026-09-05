@@ -52,7 +52,7 @@ export function renderExampleSvg(config: ProfileConfig): string {
   const output = buildTerminalOutput(exampleProfileStats, config);
   const timeline = createAnimationTimeline(output, config.animation);
 
-  return renderTerminalSvg(output, { timeline });
+  return renderTerminalSvg(output, { timeline, theme: config.theme });
 }
 
 export function exampleFileContents(): {

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { defaultThemeId, themeIds } from '../theme/index.js';
+
 const defaultSections = {
   repos: true,
   stars: true,
@@ -29,7 +31,7 @@ export const profileConfigSchema = z
       })
       .strict()
       .default(defaultSections),
-    theme: z.string().default('dark'),
+    theme: z.enum(themeIds).default(defaultThemeId),
     animation: z
       .object({
         enabled: z.boolean().default(defaultAnimation.enabled),

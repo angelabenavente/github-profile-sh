@@ -191,6 +191,14 @@ theme: 1
 `),
       ).toThrowError(/Invalid profile config:.*theme/s);
     });
+
+    it('rejects an unknown theme', () => {
+      expect(() =>
+        parseProfileConfig(`
+theme: matrix
+`),
+      ).toThrowError(/Invalid profile config:.*theme/s);
+    });
   });
 
   describe('unknown properties', () => {
@@ -316,6 +324,7 @@ animation:
 
       parsed.sections.repos = false;
       parsed.animation.mode = 'none';
+      // @ts-expect-error light is not a registered theme
       parsed.theme = 'light';
 
       expect(defaultProfileConfig).toEqual(expectedDefaults);

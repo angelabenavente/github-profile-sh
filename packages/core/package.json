@@ -10,7 +10,8 @@
     "./terminal": "./src/terminal/index.ts",
     "./renderer": "./src/renderer/index.ts",
     "./animation": "./src/animation/index.ts",
-    "./errors": "./src/errors.ts"
+    "./errors": "./src/errors.ts",
+    "./theme": "./src/theme/index.ts"
   },
   "dependencies": {
     "octokit": "^5.0.5",

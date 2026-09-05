@@ -101,6 +101,7 @@ function renderProfileSvg(
     const terminal = buildTerminalOutput(stats, config);
     return renderTerminalSvg(terminal, {
       timeline: createAnimationTimeline(terminal, config.animation),
+      theme: config.theme,
     });
   } catch (error) {
     if (isExpectedError(error)) {

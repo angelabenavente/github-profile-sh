@@ -4,6 +4,7 @@ import {
   defaultProfileConfig,
   profileConfigSchema,
 } from '../packages/core/src/config/index.js';
+import { themeIds } from '../packages/core/src/theme/index.js';
 
 const updateFrequencies = [
   '12h',
@@ -69,6 +70,17 @@ describe('profileConfigSchema', () => {
 
   it('applies defaults when values are omitted', () => {
     expect(profileConfigSchema.parse({})).toEqual(defaultProfileConfig);
+  });
+
+  it('accepts every registered theme', () => {
+    for (const theme of themeIds) {
+      expect(
+        profileConfigSchema.parse({
+          ...defaultProfileConfig,
+          theme,
+        }).theme,
+      ).toBe(theme);
+    }
   });
 
   it('accepts every animation mode', () => {

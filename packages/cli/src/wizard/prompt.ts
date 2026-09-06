@@ -5,10 +5,13 @@ import { buildProfileConfig } from './config.js';
 import {
   animationOptions,
   defaultSectionKeys,
+  defaultThemeId,
   frequencyOptions,
   sectionOptions,
+  themeOptions,
   type AnimationMode,
   type SectionKey,
+  type ThemeId,
   type UpdateFrequency,
 } from './options.js';
 
@@ -53,6 +56,14 @@ export async function collectWizardAnswers(): Promise<WizardAnswers> {
     }),
   );
 
+  const theme = requireAnswer(
+    await select<ThemeId>({
+      message: 'Theme',
+      options: [...themeOptions],
+      initialValue: defaultThemeId,
+    }),
+  );
+
   const animation = requireAnswer(
     await select<AnimationMode>({
       message: 'Animation',
@@ -69,7 +80,7 @@ export async function collectWizardAnswers(): Promise<WizardAnswers> {
     }),
   );
 
-  return { sections, animation, frequency };
+  return { sections, theme, animation, frequency };
 }
 
 export const defaultOverwrite = false;

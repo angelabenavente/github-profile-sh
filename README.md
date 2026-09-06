@@ -29,7 +29,7 @@ Run this from your public GitHub Profile README repository
 npx github-profile-sh init
 ```
 
-The wizard asks three things: which metrics to show, the animation type, and
+The wizard asks which metrics to show, the theme, the animation type, and
 how often to update.
 
 It creates:
@@ -100,7 +100,21 @@ update:
   frequency: daily
 ```
 
-v0.1 ships one theme: `dark`.
+### Themes
+
+Set `theme` to one of `dark`, `ubuntu`, or `matrix`. The default is `dark`.
+
+#### dark
+
+![dark theme](./examples/themes/dark.svg)
+
+#### ubuntu
+
+![ubuntu theme](./examples/themes/ubuntu.svg)
+
+#### matrix
+
+![matrix theme](./examples/themes/matrix.svg)
 
 ### Animation
 

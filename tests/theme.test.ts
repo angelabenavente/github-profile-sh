@@ -6,7 +6,10 @@ import { renderTerminalSvg } from '../packages/core/src/renderer/index.js';
 import {
   defaultThemeId,
   getTheme,
+  themeCatalog,
   themeIds,
+  themeLabel,
+  themeOptions,
   themes,
   type ThemePalette,
 } from '../packages/core/src/theme/index.js';
@@ -25,23 +28,71 @@ function hexColor(value: string): boolean {
 }
 
 describe('theme registry', () => {
-  it('contains dark as the only registered theme', () => {
-    expect(themeIds).toEqual(['dark']);
+  it('registers the public themes in catalog order', () => {
+    expect(themeIds).toEqual([
+      'dark',
+      'light',
+      'github-dark',
+      'ubuntu',
+      'macos',
+      'matrix',
+      'dracula',
+      'nord',
+      'tokyo-night',
+      'catppuccin',
+      'gruvbox',
+      'monokai',
+      'solarized-dark',
+      'solarized-light',
+      'amber',
+      'retro-green',
+    ]);
+    expect(Object.keys(themes)).toEqual(themeIds);
     expect(defaultThemeId).toBe('dark');
     expect(themes.dark).toEqual(getTheme('dark'));
   });
 
+  it('keeps human labels centralized', () => {
+    expect(themeCatalog.map((theme) => theme.label)).toEqual([
+      'Dark',
+      'Light',
+      'GitHub Dark',
+      'Ubuntu',
+      'macOS',
+      'Matrix',
+      'Dracula',
+      'Nord',
+      'Tokyo Night',
+      'Catppuccin',
+      'Gruvbox',
+      'Monokai',
+      'Solarized Dark',
+      'Solarized Light',
+      'Amber',
+      'Retro Green',
+    ]);
+    expect(themeOptions.map((option) => option.value)).toEqual(themeIds);
+    expect(themeLabel('github-dark')).toBe('GitHub Dark');
+    expect(themeLabel('macos')).toBe('macOS');
+    expect(themeLabel('tokyo-night')).toBe('Tokyo Night');
+    expect(themeLabel('solarized-dark')).toBe('Solarized Dark');
+    expect(themeLabel('solarized-light')).toBe('Solarized Light');
+    expect(themeLabel('retro-green')).toBe('Retro Green');
+  });
+
   it('defines every palette token used by the renderer', () => {
-    const dark = getTheme('dark');
+    for (const themeId of themeIds) {
+      const palette = getTheme(themeId);
 
-    expect(Object.keys(dark).sort()).toEqual([...requiredTokens].sort());
+      expect(Object.keys(palette).sort()).toEqual([...requiredTokens].sort());
 
-    for (const token of requiredTokens) {
-      expect(hexColor(dark[token])).toBe(true);
+      for (const token of requiredTokens) {
+        expect(hexColor(palette[token])).toBe(true);
+      }
     }
   });
 
-  it('resolves dark to the current terminal palette', () => {
+  it('resolves each registered palette', () => {
     expect(getTheme('dark')).toEqual({
       background: '#0d1117',
       foreground: '#e6edf3',
@@ -49,38 +100,57 @@ describe('theme registry', () => {
       accent: '#3fb950',
       track: '#21262d',
     });
+    expect(getTheme('ubuntu')).toEqual({
+      background: '#300a24',
+      foreground: '#eeeeee',
+      muted: '#aea79f',
+      accent: '#e95420',
+      track: '#1a0614',
+    });
+    expect(getTheme('matrix')).toEqual({
+      background: '#000000',
+      foreground: '#00ff41',
+      muted: '#008f11',
+      accent: '#39ff14',
+      track: '#003b00',
+    });
   });
 });
 
 describe('theme config', () => {
-  it('accepts theme dark', () => {
-    expect(parseProfileConfig('theme: dark\n').theme).toBe('dark');
+  it('accepts every registered theme', () => {
     expect(parseProfileConfig('').theme).toBe('dark');
+
+    for (const themeId of themeIds) {
+      expect(parseProfileConfig(`theme: ${themeId}\n`).theme).toBe(themeId);
+    }
   });
 
   it('rejects an unknown theme', () => {
-    expect(() => parseProfileConfig('theme: ubuntu\n')).toThrowError(
+    expect(() => parseProfileConfig('theme: papaya\n')).toThrowError(
       /Invalid profile config:.*theme/s,
     );
   });
 });
 
 describe('theme renderer', () => {
-  it('uses the resolved dark palette for colors', () => {
-    const palette = getTheme('dark');
-    const svg = renderTerminalSvg(completeOutput, { theme: 'dark' });
+  it('uses the resolved palette for each theme', () => {
+    for (const themeId of themeIds) {
+      const palette = getTheme(themeId);
+      const svg = renderTerminalSvg(completeOutput, { theme: themeId });
 
-    expect(svg).toContain(`.fg { fill: ${palette.foreground}; }`);
-    expect(svg).toContain(`.muted { fill: ${palette.muted}; }`);
-    expect(svg).toContain(
-      `.dots { fill: ${palette.muted}; fill-opacity: 0.55; }`,
-    );
-    expect(svg).toContain(`.accent { fill: ${palette.accent}; }`);
-    expect(svg).toContain(`.track { fill: ${palette.track}; }`);
-    expect(svg).toContain(`.bar { fill: ${palette.accent}; }`);
-    expect(svg).toContain(`.cursor { fill: ${palette.foreground}; }`);
-    expect(svg).toContain(`.command-cursor { fill: ${palette.accent}; }`);
-    expect(svg).toContain(`fill="${palette.background}"`);
+      expect(svg).toContain(`.fg { fill: ${palette.foreground}; }`);
+      expect(svg).toContain(`.muted { fill: ${palette.muted}; }`);
+      expect(svg).toContain(
+        `.dots { fill: ${palette.muted}; fill-opacity: 0.55; }`,
+      );
+      expect(svg).toContain(`.accent { fill: ${palette.accent}; }`);
+      expect(svg).toContain(`.track { fill: ${palette.track}; }`);
+      expect(svg).toContain(`.bar { fill: ${palette.accent}; }`);
+      expect(svg).toContain(`.cursor { fill: ${palette.foreground}; }`);
+      expect(svg).toContain(`.command-cursor { fill: ${palette.accent}; }`);
+      expect(svg).toContain(`fill="${palette.background}"`);
+    }
   });
 
   it('matches the default renderer output for theme dark', () => {

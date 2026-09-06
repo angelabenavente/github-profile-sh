@@ -6,11 +6,13 @@ import { describe, expect, it } from 'vitest';
 
 import { parseProfileConfig } from '../packages/core/src/config/index.js';
 import { generatedSvgAttributionComment } from '../packages/core/src/renderer/index.js';
+import { getTheme, themeIds } from '../packages/core/src/theme/index.js';
 import {
   exampleFileContents,
   exampleFiles,
   exampleTypingConfig,
   renderExampleSvg,
+  themeExamplePath,
 } from '../scripts/generate-examples.js';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -36,6 +38,12 @@ describe('example SVGs', () => {
     expect(readExample(exampleFiles.typing)).toBe(files.typing);
     expect(readExample(exampleFiles.static)).toBe(files.static);
     expect(readExample(exampleFiles.config)).toBe(files.config);
+
+    for (const themeId of themeIds) {
+      expect(readExample(themeExamplePath(themeId))).toBe(
+        files.themes[themeId],
+      );
+    }
   });
 
   it('renders valid SVG with the fixture metrics', () => {
@@ -62,6 +70,21 @@ describe('example SVGs', () => {
       expect(svg).toContain('Go');
       expect(svg).not.toContain('█');
       expect(svg).toContain('class="bar"');
+    }
+  });
+
+  it('renders a static preview for every theme', () => {
+    const files = exampleFileContents();
+
+    for (const themeId of themeIds) {
+      const svg = files.themes[themeId];
+      const palette = getTheme(themeId);
+
+      expect(svg).toContain(`fill="${palette.background}"`);
+      expect(svg).toContain(`.fg { fill: ${palette.foreground}; }`);
+      expect(svg).not.toContain('<animate');
+      expect(svg).not.toContain('<set');
+      expect(svg).toContain('github-profile.sh');
     }
   });
 

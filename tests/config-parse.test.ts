@@ -195,7 +195,7 @@ theme: 1
     it('rejects an unknown theme', () => {
       expect(() =>
         parseProfileConfig(`
-theme: matrix
+theme: papaya
 `),
       ).toThrowError(/Invalid profile config:.*theme/s);
     });
@@ -324,8 +324,8 @@ animation:
 
       parsed.sections.repos = false;
       parsed.animation.mode = 'none';
-      // @ts-expect-error light is not a registered theme
-      parsed.theme = 'light';
+      // @ts-expect-error papaya is not a registered theme
+      parsed.theme = 'papaya';
 
       expect(defaultProfileConfig).toEqual(expectedDefaults);
       expect(parseProfileConfig('').sections.repos).toBe(true);

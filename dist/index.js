@@ -59353,7 +59353,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(495);
+/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(4902);
 
 await (0,_run_js__WEBPACK_IMPORTED_MODULE_0__/* .run */ .e)();
 
@@ -59362,7 +59362,7 @@ __webpack_async_result__();
 
 /***/ }),
 
-/***/ 495:
+/***/ 4902:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -67331,6 +67331,24 @@ function preprocess(fn, schema) {
     });
 }
 
+;// CONCATENATED MODULE: ../core/src/theme/amber.ts
+const amberTheme = {
+    background: '#1a1200',
+    foreground: '#ffb000',
+    muted: '#a67c00',
+    accent: '#ffcc33',
+    track: '#332200',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/catppuccin.ts
+const catppuccinTheme = {
+    background: '#1e1e2e',
+    foreground: '#cdd6f4',
+    muted: '#6c7086',
+    accent: '#cba6f7',
+    track: '#313244',
+};
+
 ;// CONCATENATED MODULE: ../core/src/theme/dark.ts
 const darkTheme = {
     background: '#0d1117',
@@ -67340,13 +67358,189 @@ const darkTheme = {
     track: '#21262d',
 };
 
+;// CONCATENATED MODULE: ../core/src/theme/dracula.ts
+const draculaTheme = {
+    background: '#282a36',
+    foreground: '#f8f8f2',
+    muted: '#6272a4',
+    accent: '#50fa7b',
+    track: '#44475a',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/github-dark.ts
+const githubDarkTheme = {
+    background: '#22272e',
+    foreground: '#adbac7',
+    muted: '#768390',
+    accent: '#57ab5a',
+    track: '#2d333b',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/gruvbox.ts
+const gruvboxTheme = {
+    background: '#282828',
+    foreground: '#ebdbb2',
+    muted: '#928374',
+    accent: '#fabd2f',
+    track: '#3c3836',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/light.ts
+const lightTheme = {
+    background: '#ffffff',
+    foreground: '#1f2328',
+    muted: '#656d76',
+    accent: '#1a7f37',
+    track: '#d0d7de',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/macos.ts
+const macosTheme = {
+    background: '#1c1c1e',
+    foreground: '#f5f5f7',
+    muted: '#98989d',
+    accent: '#30d158',
+    track: '#2c2c2e',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/matrix.ts
+const matrixTheme = {
+    background: '#000000',
+    foreground: '#00ff41',
+    muted: '#008f11',
+    accent: '#39ff14',
+    track: '#003b00',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/monokai.ts
+const monokaiTheme = {
+    background: '#272822',
+    foreground: '#f8f8f2',
+    muted: '#75715e',
+    accent: '#a6e22e',
+    track: '#3e3d32',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/nord.ts
+const nordTheme = {
+    background: '#2e3440',
+    foreground: '#eceff4',
+    muted: '#4c566a',
+    accent: '#88c0d0',
+    track: '#3b4252',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/retro-green.ts
+const retroGreenTheme = {
+    background: '#001100',
+    foreground: '#33ff33',
+    muted: '#1a7a1a',
+    accent: '#66ff66',
+    track: '#003300',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/solarized-dark.ts
+const solarizedDarkTheme = {
+    background: '#002b36',
+    foreground: '#839496',
+    muted: '#586e75',
+    accent: '#268bd2',
+    track: '#073642',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/solarized-light.ts
+const solarizedLightTheme = {
+    background: '#fdf6e3',
+    foreground: '#657b83',
+    muted: '#93a1a1',
+    accent: '#268bd2',
+    track: '#eee8d5',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/tokyo-night.ts
+const tokyoNightTheme = {
+    background: '#1a1b26',
+    foreground: '#c0caf5',
+    muted: '#565f89',
+    accent: '#7aa2f7',
+    track: '#24283b',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/ubuntu.ts
+const ubuntuTheme = {
+    background: '#300a24',
+    foreground: '#eeeeee',
+    muted: '#aea79f',
+    accent: '#e95420',
+    track: '#1a0614',
+};
+
+;// CONCATENATED MODULE: ../core/src/theme/catalog.ts
+const themeCatalog = [
+    { id: 'dark', label: 'Dark' },
+    { id: 'light', label: 'Light' },
+    { id: 'github-dark', label: 'GitHub Dark' },
+    { id: 'ubuntu', label: 'Ubuntu' },
+    { id: 'macos', label: 'macOS' },
+    { id: 'matrix', label: 'Matrix' },
+    { id: 'dracula', label: 'Dracula' },
+    { id: 'nord', label: 'Nord' },
+    { id: 'tokyo-night', label: 'Tokyo Night' },
+    { id: 'catppuccin', label: 'Catppuccin' },
+    { id: 'gruvbox', label: 'Gruvbox' },
+    { id: 'monokai', label: 'Monokai' },
+    { id: 'solarized-dark', label: 'Solarized Dark' },
+    { id: 'solarized-light', label: 'Solarized Light' },
+    { id: 'amber', label: 'Amber' },
+    { id: 'retro-green', label: 'Retro Green' },
+];
+const themeIds = themeCatalog.map((theme) => theme.id);
+const defaultThemeId = 'dark';
+const themeOptions = themeCatalog.map((theme) => ({
+    value: theme.id,
+    label: theme.label,
+}));
+function themeLabel(themeId) {
+    const theme = themeCatalog.find((entry) => entry.id === themeId);
+    return theme?.label ?? themeId;
+}
+
 ;// CONCATENATED MODULE: ../core/src/theme/index.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const themes = {
     dark: darkTheme,
+    light: lightTheme,
+    'github-dark': githubDarkTheme,
+    ubuntu: ubuntuTheme,
+    macos: macosTheme,
+    matrix: matrixTheme,
+    dracula: draculaTheme,
+    nord: nordTheme,
+    'tokyo-night': tokyoNightTheme,
+    catppuccin: catppuccinTheme,
+    gruvbox: gruvboxTheme,
+    monokai: monokaiTheme,
+    'solarized-dark': solarizedDarkTheme,
+    'solarized-light': solarizedLightTheme,
+    amber: amberTheme,
+    'retro-green': retroGreenTheme,
 };
-const themeIds = Object.keys(themes);
-const defaultThemeId = 'dark';
 function getTheme(themeId) {
     return themes[themeId];
 }

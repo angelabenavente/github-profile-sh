@@ -1,22 +1,31 @@
 import type { ProfileConfig } from '@github-profile-sh/core/config/schema';
 import { profileConfigSchema } from '@github-profile-sh/core/config/schema';
 
-import type { AnimationMode, SectionKey, UpdateFrequency } from './options.js';
+import type {
+  AnimationMode,
+  SectionKey,
+  ThemeId,
+  UpdateFrequency,
+} from './options.js';
 import {
   defaultSectionKeys,
+  defaultThemeId,
   frequencySummaryLabels,
   sectionOptions,
   sectionSummaryLabels,
+  themeLabel,
 } from './options.js';
 
 export type WizardAnswers = {
   sections: SectionKey[];
+  theme: ThemeId;
   animation: AnimationMode;
   frequency: UpdateFrequency;
 };
 
 export const defaultWizardAnswers: WizardAnswers = {
   sections: defaultSectionKeys,
+  theme: defaultThemeId,
   animation: 'typing',
   frequency: 'daily',
 };
@@ -43,7 +52,7 @@ export function buildProfileConfig(answers: WizardAnswers): ProfileConfig {
       codeChanges: selected.has('codeChanges'),
       languages: selected.has('languages'),
     },
-    theme: 'dark',
+    theme: answers.theme,
     animation: {
       enabled: answers.animation !== 'none',
       mode: answers.animation,
@@ -66,6 +75,9 @@ export function formatSummary(config: ProfileConfig): string {
     '',
     'Sections',
     ...sections,
+    '',
+    'Theme',
+    `  ${themeLabel(config.theme)}`,
     '',
     'Animation',
     `  ${config.animation.mode}`,

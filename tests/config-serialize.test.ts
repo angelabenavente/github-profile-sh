@@ -74,6 +74,7 @@ describe('serializeProfileConfig', () => {
         serializeProfileConfig(
           buildProfileConfig({
             sections: ['repos', 'languages'],
+            theme: 'dark',
             animation: 'none',
             frequency: 'manual',
           }),

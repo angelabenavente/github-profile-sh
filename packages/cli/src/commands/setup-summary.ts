@@ -2,7 +2,7 @@ import type { ProfileConfig } from '@github-profile-sh/core/config/schema';
 import type { GeneratedFileStatus } from '../fs/write-generated.js';
 
 import { PROFILE_CONFIG_FILENAME } from '../config/write.js';
-import { frequencyLabel } from '../wizard/options.js';
+import { frequencyLabel, themeLabel } from '../wizard/options.js';
 import {
   PROFILE_SVG_FILENAME,
   WORKFLOW_RELATIVE_PATH,
@@ -17,6 +17,7 @@ export function profileReadmeSnippet(
 export function buildSetupSummary(options: {
   configStatus: GeneratedFileStatus;
   workflowStatus: GeneratedFileStatus;
+  theme: ProfileConfig['theme'];
   frequency: ProfileConfig['update']['frequency'];
 }): string {
   return [
@@ -24,6 +25,9 @@ export function buildSetupSummary(options: {
     formatGeneratedFileLine(options.workflowStatus, WORKFLOW_RELATIVE_PATH),
     '',
     'Setup complete.',
+    '',
+    'Theme',
+    `  ${themeLabel(options.theme)}`,
     '',
     'Update frequency',
     `  ${frequencyLabel(options.frequency)}`,

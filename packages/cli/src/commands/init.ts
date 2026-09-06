@@ -33,6 +33,7 @@ export async function runInit(options: RunInitOptions = {}): Promise<void> {
       buildSetupSummary({
         configStatus: configResult.status,
         workflowStatus: workflowResult.status,
+        theme: config.theme,
         frequency: config.update.frequency,
       }),
     );

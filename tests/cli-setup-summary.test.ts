@@ -52,6 +52,7 @@ describe('buildSetupSummary', () => {
     const summary = buildSetupSummary({
       configStatus: 'created',
       workflowStatus: 'created',
+      theme: 'dark',
       frequency: 'daily',
     });
 
@@ -60,6 +61,8 @@ describe('buildSetupSummary', () => {
     expect(summary).toContain(
       '✓ Created .github/workflows/github-profile-sh.yml',
     );
+    expect(summary).toContain('Theme');
+    expect(summary).toContain('Dark');
     expect(summary).toContain('Once a day');
     expect(summary).toContain(profileReadmeSnippet());
     expect(summary).not.toContain('0 3 * * *');
@@ -70,8 +73,11 @@ describe('buildSetupSummary', () => {
     const summary = buildSetupSummary({
       configStatus: 'skipped',
       workflowStatus: 'created',
+      theme: 'ubuntu',
       frequency: 'manual',
     });
+
+    expect(summary).toContain('Ubuntu');
 
     expect(summary).toContain('✓ Kept existing github-profile-sh.yml');
     expect(summary).not.toMatch(/✓ Created github-profile-sh.yml$/m);
@@ -82,6 +88,7 @@ describe('buildSetupSummary', () => {
     const summary = buildSetupSummary({
       configStatus: 'overwritten',
       workflowStatus: 'overwritten',
+      theme: 'dark',
       frequency: 'daily',
     });
 
@@ -116,6 +123,8 @@ describe('runInit setup summary', () => {
     expect(output).toContain(
       '✓ Created .github/workflows/github-profile-sh.yml',
     );
+    expect(output).toContain('Theme');
+    expect(output).toContain('Dark');
     expect(output).toContain('Once a day');
     expect(output).toContain(profileReadmeSnippet());
     expect(output).not.toContain('cron');

@@ -11,6 +11,7 @@ import {
 import type { ProfileStats } from '../packages/core/src/github/index.js';
 import { renderTerminalSvg } from '../packages/core/src/renderer/index.js';
 import { buildTerminalOutput } from '../packages/core/src/terminal/index.js';
+import { themeIds, type ThemeId } from '../packages/core/src/theme/index.js';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -48,6 +49,10 @@ export const exampleFiles = {
   static: 'examples/static.svg',
 } as const;
 
+export function themeExamplePath(themeId: ThemeId): string {
+  return `examples/themes/${themeId}.svg`;
+}
+
 export function renderExampleSvg(config: ProfileConfig): string {
   const output = buildTerminalOutput(exampleProfileStats, config);
   const timeline = createAnimationTimeline(output, config.animation);
@@ -55,15 +60,29 @@ export function renderExampleSvg(config: ProfileConfig): string {
   return renderTerminalSvg(output, { timeline, theme: config.theme });
 }
 
+export function exampleThemeConfig(theme: ThemeId): ProfileConfig {
+  return {
+    ...exampleStaticConfig,
+    theme,
+  };
+}
+
 export function exampleFileContents(): {
   config: string;
   typing: string;
   static: string;
+  themes: Record<ThemeId, string>;
 } {
   return {
     config: serializeProfileConfig(exampleTypingConfig),
     typing: withTrailingNewline(renderExampleSvg(exampleTypingConfig)),
     static: withTrailingNewline(renderExampleSvg(exampleStaticConfig)),
+    themes: Object.fromEntries(
+      themeIds.map((themeId) => [
+        themeId,
+        withTrailingNewline(renderExampleSvg(exampleThemeConfig(themeId))),
+      ]),
+    ) as Record<ThemeId, string>,
   };
 }
 
@@ -71,9 +90,14 @@ export function writeExamples(root = repoRoot): void {
   const files = exampleFileContents();
 
   mkdirSync(join(root, 'examples'), { recursive: true });
+  mkdirSync(join(root, 'examples/themes'), { recursive: true });
   writeFileSync(join(root, exampleFiles.config), files.config);
   writeFileSync(join(root, exampleFiles.typing), files.typing);
   writeFileSync(join(root, exampleFiles.static), files.static);
+
+  for (const themeId of themeIds) {
+    writeFileSync(join(root, themeExamplePath(themeId)), files.themes[themeId]);
+  }
 }
 
 function withTrailingNewline(text: string): string {

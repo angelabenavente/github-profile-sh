@@ -1,8 +1,17 @@
 import type { ProfileConfig } from '@github-profile-sh/core/config/schema';
+import {
+  defaultThemeId,
+  themeLabel,
+  themeOptions,
+  type ThemeId,
+} from '@github-profile-sh/core/theme';
 
 export type SectionKey = keyof ProfileConfig['sections'];
 export type AnimationMode = ProfileConfig['animation']['mode'];
 export type UpdateFrequency = ProfileConfig['update']['frequency'];
+export type { ThemeId };
+
+export { defaultThemeId, themeLabel, themeOptions };
 
 export const sectionOptions = [
   { value: 'repos', label: 'Repos' },

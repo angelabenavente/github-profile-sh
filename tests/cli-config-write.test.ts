@@ -25,6 +25,7 @@ function tempDir() {
 
 const defaultConfig = buildProfileConfig(defaultWizardAnswers);
 const partialConfig = buildProfileConfig({
+  ...defaultWizardAnswers,
   sections: ['repos', 'stars', 'languages'],
   animation: 'none',
   frequency: 'manual',

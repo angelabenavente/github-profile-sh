@@ -43,10 +43,28 @@ export const exampleStaticConfig: ProfileConfig = {
   },
 };
 
+export const exampleMatrixConfig: ProfileConfig = {
+  ...exampleTypingConfig,
+  theme: 'matrix',
+};
+
+export const exampleUbuntuConfig: ProfileConfig = {
+  ...exampleTypingConfig,
+  theme: 'ubuntu',
+  animation: {
+    enabled: true,
+    mode: 'sequential',
+  },
+};
+
 export const exampleFiles = {
   config: 'examples/github-profile.yml',
   typing: 'examples/github-profile.svg',
   static: 'examples/static.svg',
+  matrixConfig: 'examples/matrix.yml',
+  matrix: 'examples/matrix.svg',
+  ubuntuConfig: 'examples/ubuntu.yml',
+  ubuntu: 'examples/ubuntu.svg',
 } as const;
 
 export function themeExamplePath(themeId: ThemeId): string {
@@ -71,12 +89,20 @@ export function exampleFileContents(): {
   config: string;
   typing: string;
   static: string;
+  matrixConfig: string;
+  matrix: string;
+  ubuntuConfig: string;
+  ubuntu: string;
   themes: Record<ThemeId, string>;
 } {
   return {
     config: serializeProfileConfig(exampleTypingConfig),
     typing: withTrailingNewline(renderExampleSvg(exampleTypingConfig)),
     static: withTrailingNewline(renderExampleSvg(exampleStaticConfig)),
+    matrixConfig: serializeProfileConfig(exampleMatrixConfig),
+    matrix: withTrailingNewline(renderExampleSvg(exampleMatrixConfig)),
+    ubuntuConfig: serializeProfileConfig(exampleUbuntuConfig),
+    ubuntu: withTrailingNewline(renderExampleSvg(exampleUbuntuConfig)),
     themes: Object.fromEntries(
       themeIds.map((themeId) => [
         themeId,
@@ -94,6 +120,10 @@ export function writeExamples(root = repoRoot): void {
   writeFileSync(join(root, exampleFiles.config), files.config);
   writeFileSync(join(root, exampleFiles.typing), files.typing);
   writeFileSync(join(root, exampleFiles.static), files.static);
+  writeFileSync(join(root, exampleFiles.matrixConfig), files.matrixConfig);
+  writeFileSync(join(root, exampleFiles.matrix), files.matrix);
+  writeFileSync(join(root, exampleFiles.ubuntuConfig), files.ubuntuConfig);
+  writeFileSync(join(root, exampleFiles.ubuntu), files.ubuntu);
 
   for (const themeId of themeIds) {
     writeFileSync(join(root, themeExamplePath(themeId)), files.themes[themeId]);

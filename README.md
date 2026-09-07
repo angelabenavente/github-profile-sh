@@ -1,26 +1,16 @@
 # github-profile.sh
 
-Animated GitHub profile stats rendered as a terminal, powered by GitHub
-Actions.
+Turn your GitHub profile into an animated terminal.
+
+Choose your stats, theme, and animation style. github-profile.sh renders a
+standalone SVG and keeps it updated with GitHub Actions — no backend,
+database, or tracking.
 
 [![CI](https://github.com/angelabenavente/github-profile-sh/actions/workflows/ci.yml/badge.svg)](https://github.com/angelabenavente/github-profile-sh/actions/workflows/ci.yml)
 
 ![github-profile.sh](./examples/github-profile.svg)
 
-## What it shows
-
-v0.1 can include any of these public metrics:
-
-- **repos** — public repositories you own
-- **stars** — stars across those repositories
-- **current streak** — consecutive days with contributions
-- **code changes** — additions plus deletions from GitHub contributor stats
-- **top languages** — language mix across those repositories
-
-If contributor stats are incomplete for some repositories, code changes is
-shown as an approximation (`~8.4k`).
-
-## Install
+## Quick start
 
 Run this from your public GitHub Profile README repository
 (`USERNAME/USERNAME`):
@@ -29,15 +19,8 @@ Run this from your public GitHub Profile README repository
 npx github-profile-sh init
 ```
 
-The wizard asks which metrics to show, the theme, the animation type, and
-how often to update.
-
-It creates:
-
-```text
-github-profile-sh.yml
-.github/workflows/github-profile-sh.yml
-```
+The wizard asks for stats, theme, animation, and update frequency. It writes
+`github-profile-sh.yml` and `.github/workflows/github-profile-sh.yml`.
 
 Add this to your profile `README.md`:
 
@@ -48,39 +31,14 @@ Add this to your profile `README.md`:
 Then commit and push. The SVG is generated the next time the workflow runs.
 You can trigger it immediately from the Actions tab.
 
-## How updates work
+## Examples
 
-```text
-GitHub Action
-  ↓
-fetch public data
-  ↓
-generate static SVG
-  ↓
-commit only if changed
-```
+These examples use the same fictional profile data. Only the config changes.
 
-There is no hosted backend. The Action reads public GitHub data, writes
-`github-profile.svg` into your repository, and commits it only when the file
-changes. Opening the README does not call this project.
+### Dark
 
-## Update frequency
-
-| Config    | Meaning        |
-| --------- | -------------- |
-| `12h`     | Every 12 hours |
-| `daily`   | Once a day     |
-| `weekly`  | Once a week    |
-| `monthly` | Once a month   |
-| `manual`  | Manual only    |
-
-Every generated workflow includes `workflow_dispatch`, so you can always run
-it from the Actions tab.
-
-## Configuration
-
-`github-profile-sh.yml` is the source of truth. The checked-in sample is
-`examples/github-profile.yml`. A default file looks like this:
+Default config (`theme: dark`, typing). Existing configs that omit `theme`
+keep this look.
 
 ```yaml
 sections:
@@ -100,29 +58,197 @@ update:
   frequency: daily
 ```
 
-### Themes
+**Result**
 
-Set `theme` to one of `dark`, `ubuntu`, or `matrix`. The default is `dark`.
+![Dark example](./examples/github-profile.svg)
 
-#### dark
+### Matrix
 
-![dark theme](./examples/themes/dark.svg)
+```yaml
+sections:
+  repos: true
+  stars: true
+  streak: true
+  codeChanges: true
+  languages: true
 
-#### ubuntu
+theme: matrix
 
-![ubuntu theme](./examples/themes/ubuntu.svg)
+animation:
+  enabled: true
+  mode: typing
 
-#### matrix
+update:
+  frequency: daily
+```
 
-![matrix theme](./examples/themes/matrix.svg)
+**Result**
 
-### Animation
+![Matrix example](./examples/matrix.svg)
+
+### Ubuntu
+
+Same product, a different palette and animation (`sequential` instead of
+typing).
+
+```yaml
+sections:
+  repos: true
+  stars: true
+  streak: true
+  codeChanges: true
+  languages: true
+
+theme: ubuntu
+
+animation:
+  enabled: true
+  mode: sequential
+
+update:
+  frequency: daily
+```
+
+**Result**
+
+![Ubuntu example](./examples/ubuntu.svg)
+
+## Themes
+
+Themes are built-in palettes. The default is `dark`. The CLI writes the
+selected theme ID to `github-profile-sh.yml`:
+
+```yaml
+theme: ubuntu
+```
+
+There is no custom color API. Opening a README does not load themes from
+this project.
+
+The gallery below uses the same stats and `animation.mode: none`, so the
+palettes are easy to compare.
+
+| Dark                                | Light                                 |
+| ----------------------------------- | ------------------------------------- |
+| ![Dark](./examples/themes/dark.svg) | ![Light](./examples/themes/light.svg) |
+
+| GitHub Dark                                       | Ubuntu                                  |
+| ------------------------------------------------- | --------------------------------------- |
+| ![GitHub Dark](./examples/themes/github-dark.svg) | ![Ubuntu](./examples/themes/ubuntu.svg) |
+
+| macOS                                 | Matrix                                  |
+| ------------------------------------- | --------------------------------------- |
+| ![macOS](./examples/themes/macos.svg) | ![Matrix](./examples/themes/matrix.svg) |
+
+| Dracula                                   | Nord                                |
+| ----------------------------------------- | ----------------------------------- |
+| ![Dracula](./examples/themes/dracula.svg) | ![Nord](./examples/themes/nord.svg) |
+
+| Tokyo Night                                       | Catppuccin                                      |
+| ------------------------------------------------- | ----------------------------------------------- |
+| ![Tokyo Night](./examples/themes/tokyo-night.svg) | ![Catppuccin](./examples/themes/catppuccin.svg) |
+
+| Gruvbox                                   | Monokai                                   |
+| ----------------------------------------- | ----------------------------------------- |
+| ![Gruvbox](./examples/themes/gruvbox.svg) | ![Monokai](./examples/themes/monokai.svg) |
+
+| Solarized Dark                                          | Solarized Light                                           |
+| ------------------------------------------------------- | --------------------------------------------------------- |
+| ![Solarized Dark](./examples/themes/solarized-dark.svg) | ![Solarized Light](./examples/themes/solarized-light.svg) |
+
+| Amber                                 | Retro Green                                       |
+| ------------------------------------- | ------------------------------------------------- |
+| ![Amber](./examples/themes/amber.svg) | ![Retro Green](./examples/themes/retro-green.svg) |
+
+### Theme reference
+
+| Theme ID          | Name            |
+| ----------------- | --------------- |
+| `dark`            | Dark            |
+| `light`           | Light           |
+| `github-dark`     | GitHub Dark     |
+| `ubuntu`          | Ubuntu          |
+| `macos`           | macOS           |
+| `matrix`          | Matrix          |
+| `dracula`         | Dracula         |
+| `nord`            | Nord            |
+| `tokyo-night`     | Tokyo Night     |
+| `catppuccin`      | Catppuccin      |
+| `gruvbox`         | Gruvbox         |
+| `monokai`         | Monokai         |
+| `solarized-dark`  | Solarized Dark  |
+| `solarized-light` | Solarized Light |
+| `amber`           | Amber           |
+| `retro-green`     | Retro Green     |
+
+Names such as Ubuntu, macOS, and GitHub Dark are inspired by familiar
+terminals. They are not official or affiliated palettes.
+
+## Configuration
+
+`github-profile-sh.yml` is the source of truth. The checked-in default
+sample is `examples/github-profile.yml`.
+
+| Key         | What it controls                                   |
+| ----------- | -------------------------------------------------- |
+| `sections`  | Which public stats to include                      |
+| `theme`     | Built-in palette. Default: `dark`                  |
+| `animation` | Playback style (`typing`, `sequential`, or `none`) |
+| `update`    | How often the Action regenerates the SVG           |
+
+A default file looks like this:
+
+```yaml
+sections:
+  repos: true
+  stars: true
+  streak: true
+  codeChanges: true
+  languages: true
+
+theme: dark
+
+animation:
+  enabled: true
+  mode: typing
+
+update:
+  frequency: daily
+```
+
+## Available stats
+
+Any of these public metrics can be included:
+
+- **repos** — public repositories you own
+- **stars** — stars across those repositories
+- **current streak** — consecutive days with contributions
+- **code changes** — additions plus deletions from GitHub contributor stats
+- **top languages** — language mix across those repositories
+
+If contributor stats are incomplete for some repositories, code changes is
+shown as an approximation (`~8.4k`).
+
+## Animation
 
 - `typing` — types the command, then reveals each line
 - `sequential` — reveals the command and lines in order, without typing
 - `none` — static terminal (no playback)
 
 `animation.enabled: false` is treated as `none`.
+
+## Update frequency
+
+| Config    | Meaning        |
+| --------- | -------------- |
+| `12h`     | Every 12 hours |
+| `daily`   | Once a day     |
+| `weekly`  | Once a week    |
+| `monthly` | Once a month   |
+| `manual`  | Manual only    |
+
+Every generated workflow includes `workflow_dispatch`, so you can always run
+it from the Actions tab.
 
 ## Manual GitHub Action setup
 
@@ -146,6 +272,29 @@ generate step is:
 
 The workflow generated by `init` also checks out the repo and commits
 `github-profile.svg` when it changes.
+
+The Action reads `theme` from the config file. Do not pass a theme input.
+
+## How it works
+
+```text
+github-profile-sh.yml
+  sections + theme + animation + update
+        ↓
+GitHub Action
+        ↓
+public GitHub data
+        ↓
+terminal renderer
+        ↓
+github-profile.svg
+        ↓
+profile README
+```
+
+There is no hosted backend. The SVG lives in your repository. GitHub
+Actions regenerates it on the schedule you choose. Viewing the README does
+not call this project.
 
 ## Requirements
 
@@ -183,8 +332,13 @@ Build the publishable CLI bundle:
 pnpm build:cli
 ```
 
-Regenerate the versioned SVGs in `examples/`:
+Regenerate the versioned SVGs and example configs in `examples/`:
 
 ```bash
 pnpm examples:generate
 ```
+
+## License
+
+The software is MIT. Generated profile SVGs are CC BY 4.0. See
+[LICENSE](./LICENSE).

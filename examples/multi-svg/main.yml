@@ -1,0 +1,15 @@
+sections:
+  repos: true
+  stars: true
+  streak: true
+  codeChanges: true
+  languages: false
+
+theme: ubuntu
+
+animation:
+  enabled: true
+  mode: typing
+
+update:
+  frequency: daily

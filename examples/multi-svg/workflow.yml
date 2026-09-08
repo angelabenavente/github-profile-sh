@@ -1,0 +1,39 @@
+name: Update github-profile.sh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Generate main profile
+        uses: angelabenavente/github-profile-sh@v1
+        with:
+          config: github-profile-main.yml
+          output: github-profile.svg
+          token: ${{ github.token }}
+
+      - name: Generate languages
+        uses: angelabenavente/github-profile-sh@v1
+        with:
+          config: github-profile-languages.yml
+          output: github-languages.svg
+          token: ${{ github.token }}
+
+      - name: Commit profiles
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add github-profile.svg github-languages.svg
+          git diff --cached --quiet || git commit -m "chore(profile): update github stats"
+          git push

@@ -1,0 +1,15 @@
+sections:
+  repos: false
+  stars: false
+  streak: false
+  codeChanges: false
+  languages: true
+
+theme: matrix
+
+animation:
+  enabled: true
+  mode: sequential
+
+update:
+  frequency: daily

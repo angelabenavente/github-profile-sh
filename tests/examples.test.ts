@@ -12,10 +12,13 @@ import {
   themeIds,
   themeLabel,
 } from '../packages/core/src/theme/index.js';
+import { GITHUB_PROFILE_ACTION } from '../packages/cli/src/workflow/action-ref.js';
 import {
   exampleFileContents,
   exampleFiles,
   exampleMatrixConfig,
+  exampleMultiSvgLanguagesConfig,
+  exampleMultiSvgMainConfig,
   exampleTypingConfig,
   exampleUbuntuConfig,
   renderExampleSvg,
@@ -76,6 +79,19 @@ describe('example SVGs', () => {
     expect(readExample(exampleFiles.matrix)).toBe(files.matrix);
     expect(readExample(exampleFiles.ubuntuConfig)).toBe(files.ubuntuConfig);
     expect(readExample(exampleFiles.ubuntu)).toBe(files.ubuntu);
+    expect(readExample(exampleFiles.multiSvgMainConfig)).toBe(
+      files.multiSvgMainConfig,
+    );
+    expect(readExample(exampleFiles.multiSvgLanguagesConfig)).toBe(
+      files.multiSvgLanguagesConfig,
+    );
+    expect(readExample(exampleFiles.multiSvgMain)).toBe(files.multiSvgMain);
+    expect(readExample(exampleFiles.multiSvgLanguages)).toBe(
+      files.multiSvgLanguages,
+    );
+    expect(readExample(exampleFiles.multiSvgWorkflow)).toBe(
+      files.multiSvgWorkflow,
+    );
 
     for (const themeId of themeIds) {
       expect(readExample(themeExamplePath(themeId))).toBe(
@@ -158,6 +174,63 @@ describe('example SVGs', () => {
     expect(staticSvg).not.toContain('<set');
   });
 
+  it('renders independent multi-svg examples from the same fixture', () => {
+    const files = exampleFileContents();
+    const main = parseProfileConfig(
+      readExample(exampleFiles.multiSvgMainConfig),
+    );
+    const languages = parseProfileConfig(
+      readExample(exampleFiles.multiSvgLanguagesConfig),
+    );
+
+    expect(main).toEqual(exampleMultiSvgMainConfig);
+    expect(languages).toEqual(exampleMultiSvgLanguagesConfig);
+    expect(main.sections.languages).toBe(false);
+    expect(languages.sections).toEqual({
+      repos: false,
+      stars: false,
+      streak: false,
+      codeChanges: false,
+      languages: true,
+    });
+    expect(main.theme).toBe('ubuntu');
+    expect(languages.theme).toBe('matrix');
+    expect(files.multiSvgMain).not.toBe(files.multiSvgLanguages);
+    expect(files.multiSvgMain).toContain('repos');
+    expect(files.multiSvgMain).not.toContain('top languages');
+    expect(files.multiSvgMain).toContain(
+      `fill="${getTheme('ubuntu').background}"`,
+    );
+    expect(files.multiSvgLanguages).toContain('top languages');
+    expect(files.multiSvgLanguages).not.toContain('repos');
+    expect(files.multiSvgLanguages).toContain(
+      `fill="${getTheme('matrix').background}"`,
+    );
+    expect(files.multiSvgMain).toContain('<animate');
+    expect(files.multiSvgLanguages).toContain('<animate');
+    expect(files.multiSvgLanguages).toContain('fill="freeze"');
+  });
+
+  it('documents two Action invocations with distinct config and output', () => {
+    const workflow = readExample(exampleFiles.multiSvgWorkflow);
+    const uses = workflow.match(/uses: [^\n]+/g) ?? [];
+    const actionUses = uses.filter((line) =>
+      line.includes(GITHUB_PROFILE_ACTION),
+    );
+
+    expect(actionUses).toHaveLength(2);
+    expect(workflow).toContain('config: github-profile-main.yml');
+    expect(workflow).toContain('output: github-profile.svg');
+    expect(workflow).toContain('config: github-profile-languages.yml');
+    expect(workflow).toContain('output: github-languages.svg');
+    expect(workflow).toContain(
+      'git add github-profile.svg github-languages.svg',
+    );
+    expect(workflow).not.toContain('git add .');
+    expect(workflow).not.toContain('git add -A');
+    expect(workflow).toContain('actions/checkout@v6');
+  });
+
   it('is deterministic', () => {
     const first = exampleFileContents();
     const second = exampleFileContents();
@@ -177,6 +250,8 @@ describe('README demo', () => {
     expect(matches).toContain('./examples/github-profile.svg');
     expect(matches).toContain('./examples/matrix.svg');
     expect(matches).toContain('./examples/ubuntu.svg');
+    expect(matches).toContain('./examples/multi-svg/main.svg');
+    expect(matches).toContain('./examples/multi-svg/languages.svg');
     expect(matches).not.toContain('./examples/profile.svg');
 
     for (const themeId of themeIds) {

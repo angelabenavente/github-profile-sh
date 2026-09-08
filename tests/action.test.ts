@@ -152,6 +152,74 @@ describe('generateProfile', () => {
     ).rejects.toThrow(/Invalid profile config in github-profile-sh.yml/);
   });
 
+  it('writes independent SVGs for different config and output paths', async () => {
+    const cwd = tempDir();
+    writeFileSync(
+      join(cwd, 'main.yml'),
+      serializeProfileConfig({
+        ...defaultProfileConfig,
+        theme: 'ubuntu',
+        sections: {
+          ...defaultProfileConfig.sections,
+          languages: false,
+        },
+      }),
+      'utf8',
+    );
+    writeFileSync(
+      join(cwd, 'languages.yml'),
+      serializeProfileConfig({
+        ...defaultProfileConfig,
+        theme: 'matrix',
+        sections: {
+          repos: false,
+          stars: false,
+          streak: false,
+          codeChanges: false,
+          languages: true,
+        },
+        animation: {
+          enabled: true,
+          mode: 'sequential',
+        },
+      }),
+      'utf8',
+    );
+    const fetchProfileStats = vi.fn(() => Promise.resolve(completeStats));
+    const shared = {
+      token,
+      username: 'octocat',
+      today: '2026-08-30',
+      cwd,
+      createGitHubClient: () => mockClient(),
+      fetchProfileStats,
+    };
+
+    const first = await generateProfile({
+      ...shared,
+      configPath: 'main.yml',
+      outputPath: 'github-profile.svg',
+    });
+    const second = await generateProfile({
+      ...shared,
+      configPath: 'languages.yml',
+      outputPath: 'github-languages.svg',
+    });
+
+    const mainSvg = readFileSync(first.svgPath, 'utf8');
+    const languagesSvg = readFileSync(second.svgPath, 'utf8');
+
+    expect(first.svgPath).toBe(join(cwd, 'github-profile.svg'));
+    expect(second.svgPath).toBe(join(cwd, 'github-languages.svg'));
+    expect(mainSvg).not.toBe(languagesSvg);
+    expect(mainSvg).toContain('repos');
+    expect(mainSvg).not.toContain('top languages');
+    expect(languagesSvg).toContain('top languages');
+    expect(languagesSvg).not.toContain('repos');
+    expect(readFileSync(first.svgPath, 'utf8')).toBe(mainSvg);
+    expect(fetchProfileStats).toHaveBeenCalledTimes(2);
+  });
+
   it('creates missing output directories', async () => {
     const cwd = tempDir();
     writeConfig(cwd);

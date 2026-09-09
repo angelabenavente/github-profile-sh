@@ -1,22 +1,15 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
-import { createAnimationTimeline } from '@github-profile-sh/core/animation';
 import { parseProfileConfig } from '@github-profile-sh/core/config';
-import {
-  ExpectedError,
-  getErrorMessage,
-  isExpectedError,
-} from '@github-profile-sh/core/errors';
-import {
+import { ExpectedError, getErrorMessage } from '@github-profile-sh/core/errors';
+import type {
   createGitHubClient,
-  fetchProfileStats,
-  wrapGitHubError,
-  type GitHubClient,
-  type ProfileStats,
+  GitHubClient,
+  ProfileStats,
 } from '@github-profile-sh/core/github';
-import { renderTerminalSvg } from '@github-profile-sh/core/renderer';
-import { buildTerminalOutput } from '@github-profile-sh/core/terminal';
+
+import { generateProfileOutputs } from './generate-outputs.js';
 
 export type GenerateProfileOptions = {
   configPath: string;
@@ -51,10 +44,7 @@ export async function generateProfile(
 
   const cwd = options.cwd ?? process.cwd();
   const configPath = resolve(cwd, options.configPath);
-  const svgPath = resolve(cwd, options.outputPath);
   const log = options.log ?? (() => undefined);
-  const createClient = options.createGitHubClient ?? createGitHubClient;
-  const fetchStats = options.fetchProfileStats ?? fetchProfileStats;
 
   log('Reading configuration...');
   const config = parseProfileConfig(
@@ -62,73 +52,24 @@ export async function generateProfile(
     { path: options.configPath },
   );
 
-  log('Fetching public profile data...');
-  const client = createClient({ token: options.token });
-  const stats = await fetchPublicStats(
-    fetchStats,
-    client,
-    options.username,
-    options.today,
-  );
+  const result = await generateProfileOutputs({
+    token: options.token,
+    username: options.username,
+    today: options.today,
+    targets: [{ config, output: options.outputPath }],
+    cwd,
+    createGitHubClient: options.createGitHubClient,
+    fetchProfileStats: options.fetchProfileStats,
+    log,
+  });
 
-  log('Generating SVG...');
-  const svg = renderProfileSvg(stats, config);
+  const svgPath = result.svgPaths[0];
 
-  await writeSvgFile(svgPath, svg, options.outputPath);
-  log(`Profile generated: ${options.outputPath}`);
+  if (svgPath === undefined) {
+    throw new ExpectedError('At least one render target is required.');
+  }
 
   return { svgPath };
-}
-
-async function fetchPublicStats(
-  fetchStats: NonNullable<GenerateProfileOptions['fetchProfileStats']>,
-  client: GitHubClient,
-  username: string,
-  today: string,
-): Promise<ProfileStats> {
-  try {
-    return await fetchStats(client, username, { today });
-  } catch (error) {
-    throw wrapGitHubError(error);
-  }
-}
-
-function renderProfileSvg(
-  stats: ProfileStats,
-  config: ReturnType<typeof parseProfileConfig>,
-): string {
-  try {
-    const terminal = buildTerminalOutput(stats, config);
-    return renderTerminalSvg(terminal, {
-      timeline: createAnimationTimeline(terminal, config.animation),
-      theme: config.theme,
-    });
-  } catch (error) {
-    if (isExpectedError(error)) {
-      throw error;
-    }
-
-    throw new ExpectedError(
-      `Unable to render profile SVG: ${getErrorMessage(error)}`,
-      { cause: error },
-    );
-  }
-}
-
-async function writeSvgFile(
-  absolutePath: string,
-  svg: string,
-  requestedPath: string,
-): Promise<void> {
-  try {
-    await mkdir(dirname(absolutePath), { recursive: true });
-    await writeFile(absolutePath, svg, { encoding: 'utf8' });
-  } catch (error) {
-    throw new ExpectedError(
-      `Unable to write SVG to: ${requestedPath}: ${getErrorMessage(error)}`,
-      { cause: error },
-    );
-  }
 }
 
 async function readConfigFile(

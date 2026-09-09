@@ -617,11 +617,23 @@ describe('action source', () => {
       new URL('../packages/action/src/generate.ts', import.meta.url),
       'utf8',
     );
+    const outputs = readFileSync(
+      new URL('../packages/action/src/generate-outputs.ts', import.meta.url),
+      'utf8',
+    );
+    const render = readFileSync(
+      new URL('../packages/action/src/render.ts', import.meta.url),
+      'utf8',
+    );
+    const writeSvg = readFileSync(
+      new URL('../packages/action/src/write-svg.ts', import.meta.url),
+      'utf8',
+    );
     const runSource = readFileSync(
       new URL('../packages/action/src/run.ts', import.meta.url),
       'utf8',
     );
-    const source = `${generate}\n${runSource}`;
+    const source = `${generate}\n${outputs}\n${render}\n${writeSvg}\n${runSource}`;
 
     expect(source).not.toContain('git add');
     expect(source).not.toContain('git commit');

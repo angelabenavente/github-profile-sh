@@ -59353,7 +59353,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(4902);
+/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(6270);
 
 await (0,_run_js__WEBPACK_IMPORTED_MODULE_0__/* .run */ .e)();
 
@@ -59362,7 +59362,7 @@ __webpack_async_result__();
 
 /***/ }),
 
-/***/ 4902:
+/***/ 6270:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -59424,215 +59424,6 @@ const DEFAULT_OUTPUT_PATH = 'github-profile.svg';
 const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
 ;// CONCATENATED MODULE: external "node:path"
 const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
-;// CONCATENATED MODULE: ../core/src/animation/schedule.ts
-function commandCharacterSteps(timeline) {
-    if (timeline.mode !== 'typing') {
-        return [];
-    }
-    return timeline.steps.filter((step) => step.type === 'commandCharacter');
-}
-function typingCursorHideMs(timeline) {
-    if (commandCharacterSteps(timeline).length === 0) {
-        return undefined;
-    }
-    const next = timeline.steps.find((step) => step.type === 'lineReveal' ||
-        step.type === 'languageReveal' ||
-        step.type === 'finalPrompt');
-    return next?.startMs;
-}
-function finalCursorBlink(timeline) {
-    if (timeline.mode === 'none') {
-        return undefined;
-    }
-    return timeline.steps.find((step) => step.type === 'cursorBlink');
-}
-function lineRevealSchedule(timeline) {
-    const reveals = new Map();
-    if (timeline.mode === 'none') {
-        return reveals;
-    }
-    const typedLines = new Set(commandCharacterSteps(timeline).map((step) => step.lineIndex));
-    for (const step of timeline.steps) {
-        switch (step.type) {
-            case 'commandReveal':
-            case 'lineReveal':
-            case 'languageReveal':
-            case 'finalPrompt':
-                reveals.set(step.lineIndex, {
-                    startMs: step.startMs,
-                    durationMs: step.durationMs,
-                });
-                break;
-            case 'commandCharacter':
-            case 'cursorBlink':
-                break;
-        }
-    }
-    for (const lineIndex of typedLines) {
-        reveals.delete(lineIndex);
-    }
-    return reveals;
-}
-
-;// CONCATENATED MODULE: ../core/src/animation/timings.ts
-const animationTimings = {
-    typingCharMs: 65,
-    commandRevealMs: 80,
-    lineRevealMs: 80,
-    pauseAfterCommandMs: 320,
-    pauseAfterLoadingMs: 720,
-    pauseBetweenMetricsMs: 120,
-    pauseBeforeLanguagesMs: 300,
-    pauseBetweenLanguagesMs: 120,
-    pauseBeforePromptMs: 360,
-    cursorBlinkIntervalMs: 530,
-};
-
-;// CONCATENATED MODULE: ../core/src/animation/timeline.ts
-
-function resolveMode(animation) {
-    if (!animation.enabled || animation.mode === 'none') {
-        return 'none';
-    }
-    return animation.mode;
-}
-function createClock() {
-    let nowMs = 0;
-    return {
-        now() {
-            return nowMs;
-        },
-        wait(durationMs) {
-            nowMs += durationMs;
-        },
-        take(durationMs) {
-            const startMs = nowMs;
-            nowMs += durationMs;
-            return { startMs, durationMs };
-        },
-    };
-}
-function indicesOf(lines, type) {
-    return lines.flatMap((line, index) => (line.type === type ? [index] : []));
-}
-function revealLine(steps, clock, lineIndex, lineType) {
-    steps.push({
-        type: 'lineReveal',
-        lineIndex,
-        lineType,
-        ...clock.take(animationTimings.lineRevealMs),
-    });
-}
-function revealLanguages(steps, clock, headingIndices, languageIndices) {
-    for (const [offset, lineIndex] of headingIndices.entries()) {
-        if (offset > 0) {
-            clock.wait(animationTimings.pauseBetweenLanguagesMs);
-        }
-        revealLine(steps, clock, lineIndex, 'heading');
-    }
-    for (const [offset, lineIndex] of languageIndices.entries()) {
-        if (offset > 0 || headingIndices.length > 0) {
-            clock.wait(animationTimings.pauseBetweenLanguagesMs);
-        }
-        steps.push({
-            type: 'languageReveal',
-            lineIndex,
-            ...clock.take(animationTimings.lineRevealMs),
-        });
-    }
-}
-function appendCursorBlink(steps, startMs) {
-    steps.push({
-        type: 'cursorBlink',
-        startMs,
-        intervalMs: animationTimings.cursorBlinkIntervalMs,
-    });
-    return steps;
-}
-function createNoneTimeline() {
-    return {
-        mode: 'none',
-        durationMs: 0,
-        steps: appendCursorBlink([], 0),
-    };
-}
-function emitCommand(steps, clock, output, mode) {
-    const lineIndex = output.lines.findIndex((line) => line.type === 'command');
-    const command = output.lines[lineIndex];
-    if (lineIndex === -1 || command?.type !== 'command') {
-        return;
-    }
-    if (mode === 'sequential') {
-        steps.push({
-            type: 'commandReveal',
-            lineIndex,
-            ...clock.take(animationTimings.commandRevealMs),
-        });
-        return;
-    }
-    for (const [charIndex, character] of command.text.split('').entries()) {
-        steps.push({
-            type: 'commandCharacter',
-            lineIndex,
-            charIndex,
-            character,
-            ...clock.take(animationTimings.typingCharMs),
-        });
-    }
-}
-function createAnimationTimeline(output, animation) {
-    const mode = resolveMode(animation);
-    if (mode === 'none') {
-        return createNoneTimeline();
-    }
-    const clock = createClock();
-    const steps = [];
-    const statusIndices = indicesOf(output.lines, 'status');
-    const metricIndices = indicesOf(output.lines, 'metric');
-    const headingIndices = indicesOf(output.lines, 'heading');
-    const languageIndices = indicesOf(output.lines, 'language');
-    const promptIndices = indicesOf(output.lines, 'prompt');
-    const hasLanguages = headingIndices.length > 0 || languageIndices.length > 0;
-    emitCommand(steps, clock, output, mode);
-    clock.wait(animationTimings.pauseAfterCommandMs);
-    for (const lineIndex of statusIndices) {
-        revealLine(steps, clock, lineIndex, 'status');
-    }
-    if (metricIndices.length > 0) {
-        clock.wait(animationTimings.pauseAfterLoadingMs);
-        for (const [offset, lineIndex] of metricIndices.entries()) {
-            if (offset > 0) {
-                clock.wait(animationTimings.pauseBetweenMetricsMs);
-            }
-            revealLine(steps, clock, lineIndex, 'metric');
-        }
-    }
-    if (hasLanguages) {
-        clock.wait(metricIndices.length > 0
-            ? animationTimings.pauseBeforeLanguagesMs
-            : animationTimings.pauseAfterLoadingMs);
-        revealLanguages(steps, clock, headingIndices, languageIndices);
-    }
-    clock.wait(animationTimings.pauseBeforePromptMs);
-    for (const lineIndex of promptIndices) {
-        steps.push({
-            type: 'finalPrompt',
-            lineIndex,
-            ...clock.take(animationTimings.lineRevealMs),
-        });
-    }
-    return {
-        mode,
-        durationMs: clock.now(),
-        steps: appendCursorBlink(steps, clock.now()),
-    };
-}
-
-;// CONCATENATED MODULE: ../core/src/animation/index.ts
-
-
-
-
 // EXTERNAL MODULE: ../../node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js
 var dist = __nccwpck_require__(3328);
 ;// CONCATENATED MODULE: ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/core.js
@@ -78318,6 +78109,215 @@ async function fetchProfileStats(client, username, options) {
 
 
 
+;// CONCATENATED MODULE: ../core/src/animation/schedule.ts
+function commandCharacterSteps(timeline) {
+    if (timeline.mode !== 'typing') {
+        return [];
+    }
+    return timeline.steps.filter((step) => step.type === 'commandCharacter');
+}
+function typingCursorHideMs(timeline) {
+    if (commandCharacterSteps(timeline).length === 0) {
+        return undefined;
+    }
+    const next = timeline.steps.find((step) => step.type === 'lineReveal' ||
+        step.type === 'languageReveal' ||
+        step.type === 'finalPrompt');
+    return next?.startMs;
+}
+function finalCursorBlink(timeline) {
+    if (timeline.mode === 'none') {
+        return undefined;
+    }
+    return timeline.steps.find((step) => step.type === 'cursorBlink');
+}
+function lineRevealSchedule(timeline) {
+    const reveals = new Map();
+    if (timeline.mode === 'none') {
+        return reveals;
+    }
+    const typedLines = new Set(commandCharacterSteps(timeline).map((step) => step.lineIndex));
+    for (const step of timeline.steps) {
+        switch (step.type) {
+            case 'commandReveal':
+            case 'lineReveal':
+            case 'languageReveal':
+            case 'finalPrompt':
+                reveals.set(step.lineIndex, {
+                    startMs: step.startMs,
+                    durationMs: step.durationMs,
+                });
+                break;
+            case 'commandCharacter':
+            case 'cursorBlink':
+                break;
+        }
+    }
+    for (const lineIndex of typedLines) {
+        reveals.delete(lineIndex);
+    }
+    return reveals;
+}
+
+;// CONCATENATED MODULE: ../core/src/animation/timings.ts
+const animationTimings = {
+    typingCharMs: 65,
+    commandRevealMs: 80,
+    lineRevealMs: 80,
+    pauseAfterCommandMs: 320,
+    pauseAfterLoadingMs: 720,
+    pauseBetweenMetricsMs: 120,
+    pauseBeforeLanguagesMs: 300,
+    pauseBetweenLanguagesMs: 120,
+    pauseBeforePromptMs: 360,
+    cursorBlinkIntervalMs: 530,
+};
+
+;// CONCATENATED MODULE: ../core/src/animation/timeline.ts
+
+function resolveMode(animation) {
+    if (!animation.enabled || animation.mode === 'none') {
+        return 'none';
+    }
+    return animation.mode;
+}
+function createClock() {
+    let nowMs = 0;
+    return {
+        now() {
+            return nowMs;
+        },
+        wait(durationMs) {
+            nowMs += durationMs;
+        },
+        take(durationMs) {
+            const startMs = nowMs;
+            nowMs += durationMs;
+            return { startMs, durationMs };
+        },
+    };
+}
+function indicesOf(lines, type) {
+    return lines.flatMap((line, index) => (line.type === type ? [index] : []));
+}
+function revealLine(steps, clock, lineIndex, lineType) {
+    steps.push({
+        type: 'lineReveal',
+        lineIndex,
+        lineType,
+        ...clock.take(animationTimings.lineRevealMs),
+    });
+}
+function revealLanguages(steps, clock, headingIndices, languageIndices) {
+    for (const [offset, lineIndex] of headingIndices.entries()) {
+        if (offset > 0) {
+            clock.wait(animationTimings.pauseBetweenLanguagesMs);
+        }
+        revealLine(steps, clock, lineIndex, 'heading');
+    }
+    for (const [offset, lineIndex] of languageIndices.entries()) {
+        if (offset > 0 || headingIndices.length > 0) {
+            clock.wait(animationTimings.pauseBetweenLanguagesMs);
+        }
+        steps.push({
+            type: 'languageReveal',
+            lineIndex,
+            ...clock.take(animationTimings.lineRevealMs),
+        });
+    }
+}
+function appendCursorBlink(steps, startMs) {
+    steps.push({
+        type: 'cursorBlink',
+        startMs,
+        intervalMs: animationTimings.cursorBlinkIntervalMs,
+    });
+    return steps;
+}
+function createNoneTimeline() {
+    return {
+        mode: 'none',
+        durationMs: 0,
+        steps: appendCursorBlink([], 0),
+    };
+}
+function emitCommand(steps, clock, output, mode) {
+    const lineIndex = output.lines.findIndex((line) => line.type === 'command');
+    const command = output.lines[lineIndex];
+    if (lineIndex === -1 || command?.type !== 'command') {
+        return;
+    }
+    if (mode === 'sequential') {
+        steps.push({
+            type: 'commandReveal',
+            lineIndex,
+            ...clock.take(animationTimings.commandRevealMs),
+        });
+        return;
+    }
+    for (const [charIndex, character] of command.text.split('').entries()) {
+        steps.push({
+            type: 'commandCharacter',
+            lineIndex,
+            charIndex,
+            character,
+            ...clock.take(animationTimings.typingCharMs),
+        });
+    }
+}
+function createAnimationTimeline(output, animation) {
+    const mode = resolveMode(animation);
+    if (mode === 'none') {
+        return createNoneTimeline();
+    }
+    const clock = createClock();
+    const steps = [];
+    const statusIndices = indicesOf(output.lines, 'status');
+    const metricIndices = indicesOf(output.lines, 'metric');
+    const headingIndices = indicesOf(output.lines, 'heading');
+    const languageIndices = indicesOf(output.lines, 'language');
+    const promptIndices = indicesOf(output.lines, 'prompt');
+    const hasLanguages = headingIndices.length > 0 || languageIndices.length > 0;
+    emitCommand(steps, clock, output, mode);
+    clock.wait(animationTimings.pauseAfterCommandMs);
+    for (const lineIndex of statusIndices) {
+        revealLine(steps, clock, lineIndex, 'status');
+    }
+    if (metricIndices.length > 0) {
+        clock.wait(animationTimings.pauseAfterLoadingMs);
+        for (const [offset, lineIndex] of metricIndices.entries()) {
+            if (offset > 0) {
+                clock.wait(animationTimings.pauseBetweenMetricsMs);
+            }
+            revealLine(steps, clock, lineIndex, 'metric');
+        }
+    }
+    if (hasLanguages) {
+        clock.wait(metricIndices.length > 0
+            ? animationTimings.pauseBeforeLanguagesMs
+            : animationTimings.pauseAfterLoadingMs);
+        revealLanguages(steps, clock, headingIndices, languageIndices);
+    }
+    clock.wait(animationTimings.pauseBeforePromptMs);
+    for (const lineIndex of promptIndices) {
+        steps.push({
+            type: 'finalPrompt',
+            lineIndex,
+            ...clock.take(animationTimings.lineRevealMs),
+        });
+    }
+    return {
+        mode,
+        durationMs: clock.now(),
+        steps: appendCursorBlink(steps, clock.now()),
+    };
+}
+
+;// CONCATENATED MODULE: ../core/src/animation/index.ts
+
+
+
+
 ;// CONCATENATED MODULE: ../core/src/renderer/escape.ts
 const xmlEscapes = {
     '&': '&amp;',
@@ -78681,47 +78681,11 @@ function buildTerminalOutput(stats, config) {
 
 
 
-;// CONCATENATED MODULE: ./src/generate.ts
+;// CONCATENATED MODULE: ./src/render.ts
 
 
 
 
-
-
-
-
-async function generateProfile(options) {
-    if (options.token.trim() === '') {
-        throw new ExpectedError('GitHub token is required.');
-    }
-    if (options.username.trim() === '') {
-        throw new ExpectedError('Unable to resolve GitHub username.');
-    }
-    const cwd = options.cwd ?? process.cwd();
-    const configPath = (0,external_node_path_namespaceObject.resolve)(cwd, options.configPath);
-    const svgPath = (0,external_node_path_namespaceObject.resolve)(cwd, options.outputPath);
-    const log = options.log ?? (() => undefined);
-    const createClient = options.createGitHubClient ?? createGitHubClient;
-    const fetchStats = options.fetchProfileStats ?? fetchProfileStats;
-    log('Reading configuration...');
-    const config = parseProfileConfig(await readConfigFile(configPath, options.configPath), { path: options.configPath });
-    log('Fetching public profile data...');
-    const client = createClient({ token: options.token });
-    const stats = await fetchPublicStats(fetchStats, client, options.username, options.today);
-    log('Generating SVG...');
-    const svg = renderProfileSvg(stats, config);
-    await writeSvgFile(svgPath, svg, options.outputPath);
-    log(`Profile generated: ${options.outputPath}`);
-    return { svgPath };
-}
-async function fetchPublicStats(fetchStats, client, username, today) {
-    try {
-        return await fetchStats(client, username, { today });
-    }
-    catch (error) {
-        throw wrapGitHubError(error);
-    }
-}
 function renderProfileSvg(stats, config) {
     try {
         const terminal = buildTerminalOutput(stats, config);
@@ -78737,6 +78701,11 @@ function renderProfileSvg(stats, config) {
         throw new ExpectedError(`Unable to render profile SVG: ${getErrorMessage(error)}`, { cause: error });
     }
 }
+
+;// CONCATENATED MODULE: ./src/write-svg.ts
+
+
+
 async function writeSvgFile(absolutePath, svg, requestedPath) {
     try {
         await (0,promises_namespaceObject.mkdir)((0,external_node_path_namespaceObject.dirname)(absolutePath), { recursive: true });
@@ -78745,6 +78714,105 @@ async function writeSvgFile(absolutePath, svg, requestedPath) {
     catch (error) {
         throw new ExpectedError(`Unable to write SVG to: ${requestedPath}: ${getErrorMessage(error)}`, { cause: error });
     }
+}
+
+;// CONCATENATED MODULE: ./src/generate-outputs.ts
+
+
+
+
+
+async function generateProfileOutputs(options) {
+    const cwd = options.cwd ?? process.cwd();
+    const targets = options.targets;
+    const log = options.log ?? (() => undefined);
+    if (targets.length === 0) {
+        throw new ExpectedError('At least one render target is required.');
+    }
+    assertUniqueOutputPaths(targets, cwd);
+    if (options.token.trim() === '') {
+        throw new ExpectedError('GitHub token is required.');
+    }
+    if (options.username.trim() === '') {
+        throw new ExpectedError('Unable to resolve GitHub username.');
+    }
+    const createClient = options.createGitHubClient ?? createGitHubClient;
+    const fetchStats = options.fetchProfileStats ?? fetchProfileStats;
+    const render = options.renderProfileSvg ?? renderProfileSvg;
+    log('Fetching public profile data...');
+    const client = createClient({ token: options.token });
+    const stats = await fetchPublicStats(fetchStats, client, options.username, options.today);
+    const svgPaths = [];
+    for (const target of targets) {
+        const svgPath = (0,external_node_path_namespaceObject.resolve)(cwd, target.output);
+        log('Generating SVG...');
+        const svg = renderTargetSvg(render, stats, target);
+        await writeSvgFile(svgPath, svg, target.output);
+        log(`Profile generated: ${target.output}`);
+        svgPaths.push(svgPath);
+    }
+    return { svgPaths };
+}
+function assertUniqueOutputPaths(targets, cwd) {
+    const seen = new Set();
+    for (const target of targets) {
+        const resolved = (0,external_node_path_namespaceObject.resolve)(cwd, target.output);
+        if (seen.has(resolved)) {
+            throw new ExpectedError(`Duplicate output path: ${target.output}`);
+        }
+        seen.add(resolved);
+    }
+}
+function renderTargetSvg(render, stats, target) {
+    try {
+        return render(stats, target.config);
+    }
+    catch (error) {
+        throw new ExpectedError(`Unable to render ${target.output}: ${getErrorMessage(error)}`, { cause: error });
+    }
+}
+async function fetchPublicStats(fetchStats, client, username, today) {
+    try {
+        return await fetchStats(client, username, { today });
+    }
+    catch (error) {
+        throw wrapGitHubError(error);
+    }
+}
+
+;// CONCATENATED MODULE: ./src/generate.ts
+
+
+
+
+
+async function generateProfile(options) {
+    if (options.token.trim() === '') {
+        throw new ExpectedError('GitHub token is required.');
+    }
+    if (options.username.trim() === '') {
+        throw new ExpectedError('Unable to resolve GitHub username.');
+    }
+    const cwd = options.cwd ?? process.cwd();
+    const configPath = (0,external_node_path_namespaceObject.resolve)(cwd, options.configPath);
+    const log = options.log ?? (() => undefined);
+    log('Reading configuration...');
+    const config = parseProfileConfig(await readConfigFile(configPath, options.configPath), { path: options.configPath });
+    const result = await generateProfileOutputs({
+        token: options.token,
+        username: options.username,
+        today: options.today,
+        targets: [{ config, output: options.outputPath }],
+        cwd,
+        createGitHubClient: options.createGitHubClient,
+        fetchProfileStats: options.fetchProfileStats,
+        log,
+    });
+    const svgPath = result.svgPaths[0];
+    if (svgPath === undefined) {
+        throw new ExpectedError('At least one render target is required.');
+    }
+    return { svgPath };
 }
 async function readConfigFile(absolutePath, requestedPath) {
     try {
@@ -87040,7 +87108,7 @@ exports.schema = schema;
 
 /***/ }),
 
-/***/ 6270:
+/***/ 3889:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -87124,7 +87192,7 @@ var bool = __nccwpck_require__(4494);
 var float = __nccwpck_require__(5030);
 var int = __nccwpck_require__(2857);
 var schema = __nccwpck_require__(7449);
-var schema$1 = __nccwpck_require__(6270);
+var schema$1 = __nccwpck_require__(3889);
 var binary = __nccwpck_require__(410);
 var merge = __nccwpck_require__(5863);
 var omap = __nccwpck_require__(7078);

@@ -1,0 +1,6 @@
+profiles:
+  - config: examples/multi-svg/main.yml
+    output: tmp/e2e/main.svg
+
+  - config: examples/multi-svg/languages.yml
+    output: tmp/e2e/languages.svg

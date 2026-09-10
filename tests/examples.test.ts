@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
+import { parseOutputsManifest } from '../packages/action/src/manifest/index.js';
 import { parseProfileConfig } from '../packages/core/src/config/index.js';
 import { generatedSvgAttributionComment } from '../packages/core/src/renderer/index.js';
 import {
@@ -88,6 +89,9 @@ describe('example SVGs', () => {
     expect(readExample(exampleFiles.multiSvgMain)).toBe(files.multiSvgMain);
     expect(readExample(exampleFiles.multiSvgLanguages)).toBe(
       files.multiSvgLanguages,
+    );
+    expect(readExample(exampleFiles.multiSvgManifest)).toBe(
+      files.multiSvgManifest,
     );
     expect(readExample(exampleFiles.multiSvgWorkflow)).toBe(
       files.multiSvgWorkflow,
@@ -211,18 +215,31 @@ describe('example SVGs', () => {
     expect(files.multiSvgLanguages).toContain('fill="freeze"');
   });
 
-  it('documents two Action invocations with distinct config and output', () => {
+  it('documents one Action invocation with a manifest', () => {
     const workflow = readExample(exampleFiles.multiSvgWorkflow);
     const uses = workflow.match(/uses: [^\n]+/g) ?? [];
     const actionUses = uses.filter((line) =>
       line.includes(GITHUB_PROFILE_ACTION),
     );
+    const manifest = parseOutputsManifest(
+      readExample(exampleFiles.multiSvgManifest),
+    );
 
-    expect(actionUses).toHaveLength(2);
-    expect(workflow).toContain('config: github-profile-main.yml');
-    expect(workflow).toContain('output: github-profile.svg');
-    expect(workflow).toContain('config: github-profile-languages.yml');
-    expect(workflow).toContain('output: github-languages.svg');
+    expect(actionUses).toHaveLength(1);
+    expect(workflow).toContain('manifest: github-profile-sh.outputs.yml');
+    expect(workflow).not.toContain('config: github-profile-main.yml');
+    expect(manifest).toEqual({
+      profiles: [
+        {
+          config: 'github-profile-main.yml',
+          output: 'github-profile.svg',
+        },
+        {
+          config: 'github-profile-languages.yml',
+          output: 'github-languages.svg',
+        },
+      ],
+    });
     expect(workflow).toContain(
       'git add github-profile.svg github-languages.svg',
     );

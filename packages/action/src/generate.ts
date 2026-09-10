@@ -1,8 +1,7 @@
-import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 import { parseProfileConfig } from '@github-profile-sh/core/config';
-import { ExpectedError, getErrorMessage } from '@github-profile-sh/core/errors';
+import { ExpectedError } from '@github-profile-sh/core/errors';
 import type {
   createGitHubClient,
   GitHubClient,
@@ -10,6 +9,7 @@ import type {
 } from '@github-profile-sh/core/github';
 
 import { generateProfileOutputs } from './generate-outputs.js';
+import { readTextFile } from './read-file.js';
 
 export type GenerateProfileOptions = {
   configPath: string;
@@ -48,7 +48,10 @@ export async function generateProfile(
 
   log('Reading configuration...');
   const config = parseProfileConfig(
-    await readConfigFile(configPath, options.configPath),
+    await readTextFile(configPath, options.configPath, {
+      missingPrefix: 'Configuration file not found',
+      readPrefix: 'Unable to read configuration file',
+    }),
     { path: options.configPath },
   );
 
@@ -70,31 +73,4 @@ export async function generateProfile(
   }
 
   return { svgPath };
-}
-
-async function readConfigFile(
-  absolutePath: string,
-  requestedPath: string,
-): Promise<string> {
-  try {
-    return await readFile(absolutePath, { encoding: 'utf8' });
-  } catch (error) {
-    if (isNodeError(error) && error.code === 'ENOENT') {
-      throw new ExpectedError(
-        `Configuration file not found: ${requestedPath}`,
-        {
-          cause: error,
-        },
-      );
-    }
-
-    throw new ExpectedError(
-      `Unable to read configuration file: ${requestedPath}: ${getErrorMessage(error)}`,
-      { cause: error },
-    );
-  }
-}
-
-function isNodeError(error: unknown): error is NodeJS.ErrnoException {
-  return error instanceof Error && 'code' in error;
 }

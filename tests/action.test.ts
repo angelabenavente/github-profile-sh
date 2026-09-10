@@ -8,7 +8,10 @@ import {
   DEFAULT_CONFIG_PATH,
   DEFAULT_OUTPUT_PATH,
 } from '../packages/action/src/constants.js';
-import { generateProfile } from '../packages/action/src/generate.js';
+import {
+  generateProfile,
+  type GenerateProfileOptions,
+} from '../packages/action/src/generate.js';
 import { run, type ActionIO } from '../packages/action/src/run.js';
 import { utcCalendarDate } from '../packages/action/src/today.js';
 import { serializeProfileConfig } from '../packages/core/src/config/index.js';
@@ -475,6 +478,7 @@ describe('run', () => {
     expect(io.failed).toBeUndefined();
     expect(io.setSecret).toHaveBeenCalledWith(token);
     expect(io.outputs['svg-path']).toBe(join(cwd, DEFAULT_OUTPUT_PATH));
+    expect(io.outputs['svg-paths']).toBe(JSON.stringify([DEFAULT_OUTPUT_PATH]));
     expect(io.logs.join('\n')).toContain('Reading configuration...');
     expect(io.logs.join('\n')).toContain('Fetching public profile data...');
     expect(io.logs.join('\n')).toContain('Generating SVG...');
@@ -596,6 +600,48 @@ describe('run', () => {
 
     expect(io.failed).toBeUndefined();
     expect(io.outputs['svg-path']).toBe(join(cwd, DEFAULT_OUTPUT_PATH));
+    expect(io.outputs['svg-paths']).toBe(JSON.stringify([DEFAULT_OUTPUT_PATH]));
+  });
+
+  it('keeps single-file config and output mode when manifest is absent', async () => {
+    const cwd = tempDir();
+    writeConfig(cwd);
+    const generate = vi.fn((options: GenerateProfileOptions) =>
+      generateProfile({
+        ...options,
+        createGitHubClient: () => mockClient(),
+        fetchProfileStats: () => Promise.resolve(completeStats),
+      }),
+    );
+    const io = createIO(cwd, {
+      getInput: (name) => {
+        if (name === 'token') {
+          return token;
+        }
+        if (name === 'config') {
+          return DEFAULT_CONFIG_PATH;
+        }
+        if (name === 'output') {
+          return DEFAULT_OUTPUT_PATH;
+        }
+        return '';
+      },
+      generate,
+    });
+
+    await run(io);
+
+    expect(generate).toHaveBeenCalledTimes(1);
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        configPath: DEFAULT_CONFIG_PATH,
+        outputPath: DEFAULT_OUTPUT_PATH,
+      }),
+    );
+    expect(io.failed).toBeUndefined();
+    expect(io.outputs['svg-path']).toBe(join(cwd, DEFAULT_OUTPUT_PATH));
+    expect(io.outputs['svg-paths']).toBe(JSON.stringify([DEFAULT_OUTPUT_PATH]));
+    expect(io.outputs['svg-path']).not.toBe('');
   });
 });
 
@@ -608,6 +654,8 @@ describe('action.yml', () => {
     expect(yaml).toContain('default: github-profile-sh.yml');
     expect(yaml).toContain('default: github-profile.svg');
     expect(yaml).toContain('svg-path:');
+    expect(yaml).toContain('manifest:');
+    expect(yaml).toContain('svg-paths:');
   });
 });
 
@@ -633,7 +681,11 @@ describe('action source', () => {
       new URL('../packages/action/src/run.ts', import.meta.url),
       'utf8',
     );
-    const source = `${generate}\n${outputs}\n${render}\n${writeSvg}\n${runSource}`;
+    const manifest = readFileSync(
+      new URL('../packages/action/src/generate-manifest.ts', import.meta.url),
+      'utf8',
+    );
+    const source = `${generate}\n${outputs}\n${render}\n${writeSvg}\n${runSource}\n${manifest}`;
 
     expect(source).not.toContain('git add');
     expect(source).not.toContain('git commit');

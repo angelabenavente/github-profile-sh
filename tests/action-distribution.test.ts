@@ -47,6 +47,8 @@ describe('Action root distribution', () => {
     expect(actionYml).toContain('output:');
     expect(actionYml).toContain('token:');
     expect(actionYml).toContain('svg-path:');
+    expect(actionYml).toContain('manifest:');
+    expect(actionYml).toContain('svg-paths:');
   });
 
   it('points runs.main at a bundle that exists after build', () => {

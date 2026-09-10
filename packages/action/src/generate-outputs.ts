@@ -72,11 +72,16 @@ export async function generateProfileOutputs(
     options.today,
   );
 
+  if (targets.length === 1) {
+    log('Generating SVG...');
+  } else {
+    log(`Generating ${String(targets.length)} SVGs...`);
+  }
+
   const svgPaths: string[] = [];
 
   for (const target of targets) {
     const svgPath = resolve(cwd, target.output);
-    log('Generating SVG...');
     const svg = renderTargetSvg(render, stats, target);
     await writeSvgFile(svgPath, svg, target.output);
     log(`Profile generated: ${target.output}`);

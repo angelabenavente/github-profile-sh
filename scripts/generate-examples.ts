@@ -107,6 +107,7 @@ export const exampleFiles = {
   multiSvgLanguagesConfig: 'examples/multi-svg/languages.yml',
   multiSvgMain: 'examples/multi-svg/main.svg',
   multiSvgLanguages: 'examples/multi-svg/languages.svg',
+  multiSvgManifest: 'examples/multi-svg/github-profile-sh.outputs.yml',
   multiSvgWorkflow: 'examples/multi-svg/workflow.yml',
 } as const;
 
@@ -126,6 +127,18 @@ export function exampleThemeConfig(theme: ThemeId): ProfileConfig {
     ...exampleStaticConfig,
     theme,
   };
+}
+
+export function exampleMultiSvgManifest(): string {
+  return [
+    'profiles:',
+    '  - config: github-profile-main.yml',
+    '    output: github-profile.svg',
+    '',
+    '  - config: github-profile-languages.yml',
+    '    output: github-languages.svg',
+    '',
+  ].join('\n');
 }
 
 export function exampleMultiSvgWorkflow(): string {
@@ -148,18 +161,10 @@ export function exampleMultiSvgWorkflow(): string {
     '      - name: Checkout repository',
     '        uses: actions/checkout@v6',
     '',
-    '      - name: Generate main profile',
+    '      - name: Generate profiles',
     `        uses: ${GITHUB_PROFILE_ACTION}`,
     '        with:',
-    '          config: github-profile-main.yml',
-    '          output: github-profile.svg',
-    '          token: ${{ github.token }}',
-    '',
-    '      - name: Generate languages',
-    `        uses: ${GITHUB_PROFILE_ACTION}`,
-    '        with:',
-    '          config: github-profile-languages.yml',
-    '          output: github-languages.svg',
+    '          manifest: github-profile-sh.outputs.yml',
     '          token: ${{ github.token }}',
     '',
     '      - name: Commit profiles',
@@ -185,6 +190,7 @@ export function exampleFileContents(): {
   multiSvgLanguagesConfig: string;
   multiSvgMain: string;
   multiSvgLanguages: string;
+  multiSvgManifest: string;
   multiSvgWorkflow: string;
   themes: Record<ThemeId, string>;
 } {
@@ -206,6 +212,7 @@ export function exampleFileContents(): {
     multiSvgLanguages: withTrailingNewline(
       renderExampleSvg(exampleMultiSvgLanguagesConfig),
     ),
+    multiSvgManifest: exampleMultiSvgManifest(),
     multiSvgWorkflow: exampleMultiSvgWorkflow(),
     themes: Object.fromEntries(
       themeIds.map((themeId) => [
@@ -241,6 +248,10 @@ export function writeExamples(root = repoRoot): void {
   writeFileSync(
     join(root, exampleFiles.multiSvgLanguages),
     files.multiSvgLanguages,
+  );
+  writeFileSync(
+    join(root, exampleFiles.multiSvgManifest),
+    files.multiSvgManifest,
   );
   writeFileSync(
     join(root, exampleFiles.multiSvgWorkflow),

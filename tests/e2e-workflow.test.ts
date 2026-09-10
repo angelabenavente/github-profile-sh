@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
+import { parseOutputsManifest } from '../packages/action/src/manifest/index.js';
 import { parseProfileConfig } from '../packages/core/src/config/index.js';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -33,6 +34,26 @@ describe('E2E Action fixture', () => {
       },
     });
   });
+
+  it('parses the multi-output manifest fixture', () => {
+    const yaml = readFileSync(
+      join(repoRoot, 'examples/e2e-outputs.yml'),
+      'utf8',
+    );
+
+    expect(parseOutputsManifest(yaml)).toEqual({
+      profiles: [
+        {
+          config: 'examples/multi-svg/main.yml',
+          output: 'tmp/e2e/main.svg',
+        },
+        {
+          config: 'examples/multi-svg/languages.yml',
+          output: 'tmp/e2e/languages.svg',
+        },
+      ],
+    });
+  });
 });
 
 describe('E2E Action workflow', () => {
@@ -51,6 +72,9 @@ describe('E2E Action workflow', () => {
     expect(workflow).toContain('pnpm build:action');
     expect(workflow).toContain('config: examples/e2e-profile.yml');
     expect(workflow).toContain('output: tmp/e2e/github-profile.svg');
+    expect(workflow).toContain('manifest: examples/e2e-outputs.yml');
+    expect(workflow).toContain('tmp/e2e/main.svg');
+    expect(workflow).toContain('tmp/e2e/languages.svg');
     expect(workflow).toContain('token: ${{ github.token }}');
     expect(workflow).toContain('uses: actions/checkout@v6');
     expect(workflow).toContain('name: github-profile-sh-e2e');

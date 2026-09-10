@@ -16,18 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Generate main profile
+      - name: Generate profiles
         uses: angelabenavente/github-profile-sh@v1
         with:
-          config: github-profile-main.yml
-          output: github-profile.svg
-          token: ${{ github.token }}
-
-      - name: Generate languages
-        uses: angelabenavente/github-profile-sh@v1
-        with:
-          config: github-profile-languages.yml
-          output: github-languages.svg
+          manifest: github-profile-sh.outputs.yml
           token: ${{ github.token }}
 
       - name: Commit profiles

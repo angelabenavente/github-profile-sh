@@ -41,23 +41,34 @@ jobs:
           output: tmp/e2e/github-profile.svg
           token: ${{ github.token }}
 
+      - name: Generate profiles from manifest
+        uses: ./
+        with:
+          manifest: examples/e2e-outputs.yml
+          token: ${{ github.token }}
+
       - name: Validate generated SVG
         run: |
           set -euo pipefail
-          file="tmp/e2e/github-profile.svg"
-          test -e "$file"
-          test -s "$file"
-          grep -q '<svg' "$file"
-          grep -q 'github-profile.sh' "$file"
-          grep -q 'fetching public profile data' "$file"
-          if grep -qiE '<script|javascript:' "$file"; then
-            echo "SVG must not contain JavaScript"
-            exit 1
-          fi
+          validate() {
+            file="$1"
+            test -e "$file"
+            test -s "$file"
+            grep -q '<svg' "$file"
+            grep -q 'github-profile.sh' "$file"
+            grep -q 'fetching public profile data' "$file"
+            if grep -qiE '<script|javascript:' "$file"; then
+              echo "SVG must not contain JavaScript"
+              exit 1
+            fi
+          }
+          validate tmp/e2e/github-profile.svg
+          validate tmp/e2e/main.svg
+          validate tmp/e2e/languages.svg
 
-      - name: Upload generated SVG
+      - name: Upload generated SVGs
         uses: actions/upload-artifact@v7
         with:
           name: github-profile-sh-e2e
-          path: tmp/e2e/github-profile.svg
+          path: tmp/e2e/
           if-no-files-found: error

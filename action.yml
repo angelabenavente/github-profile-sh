@@ -12,9 +12,14 @@ inputs:
   token:
     description: GitHub token used to fetch public profile data
     required: true
+  manifest:
+    description: Optional path to a multi-profile outputs manifest. When set, config and output are ignored.
+    required: false
 outputs:
   svg-path:
-    description: Path of the generated SVG file
+    description: Path of the generated SVG in single-output mode
+  svg-paths:
+    description: JSON array of generated SVG paths
 runs:
   using: node24
   main: dist/index.js

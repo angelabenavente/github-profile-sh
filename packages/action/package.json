@@ -11,7 +11,9 @@
   "dependencies": {
     "@actions/core": "^2.0.2",
     "@actions/github": "^7.0.0",
-    "@github-profile-sh/core": "workspace:*"
+    "@github-profile-sh/core": "workspace:*",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",

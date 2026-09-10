@@ -1,0 +1,6 @@
+profiles:
+  - config: github-profile-main.yml
+    output: github-profile.svg
+
+  - config: github-profile-languages.yml
+    output: github-languages.svg

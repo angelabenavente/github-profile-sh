@@ -30,5 +30,7 @@ describe('action bundle', () => {
     expect(contents).not.toContain('/Users/');
     expect(contents).not.toContain('workspace:*');
     expect(contents).not.toContain('file:///');
+    expect(contents).toContain('Reading manifest');
+    expect(contents).toContain('svg-paths');
   });
 });

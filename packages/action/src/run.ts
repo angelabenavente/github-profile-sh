@@ -4,6 +4,7 @@ import * as github from '@actions/github';
 import { ExpectedError, getErrorMessage } from '@github-profile-sh/core/errors';
 
 import { DEFAULT_CONFIG_PATH, DEFAULT_OUTPUT_PATH } from './constants.js';
+import { generateFromManifest } from './generate-manifest.js';
 import { generateProfile } from './generate.js';
 import { utcCalendarDate } from './today.js';
 
@@ -17,6 +18,7 @@ export type ActionIO = {
   today?: string;
   cwd?: string;
   generate?: typeof generateProfile;
+  generateFromManifest?: typeof generateFromManifest;
 };
 
 export function createDefaultIO(): ActionIO {
@@ -45,17 +47,37 @@ export async function run(io: ActionIO = createDefaultIO()): Promise<void> {
     token = readRequiredToken(io);
     io.setSecret(token);
 
+    const manifestPath = io.getInput('manifest').trim();
+    const username = io.getRepositoryOwner();
+    const today = io.today ?? utcCalendarDate();
+
+    if (manifestPath !== '') {
+      const result = await (io.generateFromManifest ?? generateFromManifest)({
+        manifestPath,
+        token,
+        username,
+        today,
+        cwd: io.cwd,
+        log: io.info,
+      });
+
+      io.setOutput('svg-paths', JSON.stringify(result.outputs));
+      return;
+    }
+
+    const outputPath = io.getInput('output') || DEFAULT_OUTPUT_PATH;
     const result = await (io.generate ?? generateProfile)({
       configPath: io.getInput('config') || DEFAULT_CONFIG_PATH,
-      outputPath: io.getInput('output') || DEFAULT_OUTPUT_PATH,
+      outputPath,
       token,
-      username: io.getRepositoryOwner(),
-      today: io.today ?? utcCalendarDate(),
+      username,
+      today,
       cwd: io.cwd,
       log: io.info,
     });
 
     io.setOutput('svg-path', result.svgPath);
+    io.setOutput('svg-paths', JSON.stringify([outputPath]));
   } catch (error) {
     io.setFailed(redactSecret(getErrorMessage(error), token));
   }

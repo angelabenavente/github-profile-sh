@@ -59353,7 +59353,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(6270);
+/* harmony import */ var _run_js__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(6133);
 
 await (0,_run_js__WEBPACK_IMPORTED_MODULE_0__/* .run */ .e)();
 
@@ -59362,7 +59362,7 @@ __webpack_async_result__();
 
 /***/ }),
 
-/***/ 6270:
+/***/ 6133:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -59420,8 +59420,6 @@ function getErrorStatus(error) {
 const DEFAULT_CONFIG_PATH = 'github-profile-sh.yml';
 const DEFAULT_OUTPUT_PATH = 'github-profile.svg';
 
-;// CONCATENATED MODULE: external "node:fs/promises"
-const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
 ;// CONCATENATED MODULE: external "node:path"
 const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
 // EXTERNAL MODULE: ../../node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js
@@ -59505,6 +59503,147 @@ function config(newConfig) {
         Object.assign(globalConfig, newConfig);
     return globalConfig;
 }
+
+;// CONCATENATED MODULE: ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/regexes.js
+
+/**
+ * @deprecated CUID v1 is deprecated by its authors due to information leakage
+ * (timestamps embedded in the id). Use {@link cuid2} instead.
+ * See https://github.com/paralleldrive/cuid.
+ */
+const cuid = /^[cC][0-9a-z]{6,}$/;
+const cuid2 = /^[0-9a-z]+$/;
+const ulid = /^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/;
+const xid = /^[0-9a-vA-V]{20}$/;
+const ksuid = /^[A-Za-z0-9]{27}$/;
+const nanoid = /^[a-zA-Z0-9_-]{21}$/;
+/** ISO 8601-1 duration regex. Does not support the 8601-2 extensions like negative durations or fractional/negative components. */
+const duration = /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/;
+/** Implements ISO 8601-2 extensions like explicit +- prefixes, mixing weeks with other units, and fractional/negative components. */
+const extendedDuration = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
+/** A regex for any UUID-like identifier: 8-4-4-4-12 hex pattern */
+const guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
+/** Returns a regex for validating an RFC 9562/4122 UUID.
+ *
+ * @param version Optionally specify a version 1-8. If no version is specified, all versions are supported. */
+const uuid = (version) => {
+    if (!version)
+        return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
+    return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
+};
+const uuid4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(4)));
+const uuid6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(6)));
+const uuid7 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(7)));
+/** Practical email validation */
+const email = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
+/** Equivalent to the HTML5 input[type=email] validation implemented by browsers. Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email */
+const html5Email = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+/** The classic emailregex.com regex for RFC 5322-compliant emails */
+const rfc5322Email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+/** A loose regex that allows Unicode characters, enforces length limits, and that's about it. */
+const unicodeEmail = /^[^\s@"]{1,64}@[^\s@]{1,255}$/u;
+const idnEmail = (/* unused pure expression or super */ null && (unicodeEmail));
+const browserEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+// from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
+const _emoji = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
+function emoji() {
+    return new RegExp(_emoji, "u");
+}
+const ipv4 = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
+const ipv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))$/;
+const mac = (delimiter) => {
+    const escapedDelim = util.escapeRegex(delimiter ?? ":");
+    return new RegExp(`^(?:[0-9A-F]{2}${escapedDelim}){5}[0-9A-F]{2}$|^(?:[0-9a-f]{2}${escapedDelim}){5}[0-9a-f]{2}$`);
+};
+const cidrv4 = /^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/([0-9]|[1-2][0-9]|3[0-2])$/;
+const cidrv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
+// https://stackoverflow.com/questions/7860392/determine-if-string-is-in-base64-using-javascript
+const base64 = /^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$/;
+const base64url = /^[A-Za-z0-9_-]*$/;
+// based on https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
+// export const hostname: RegExp = /^([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+$/;
+const hostname = /^(?=.{1,253}\.?$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-0-9a-zA-Z]{0,61}[0-9a-zA-Z])?)*\.?$/;
+const domain = /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+const httpProtocol = /^https?$/;
+// https://blog.stevenlevithan.com/archives/validate-phone-number#r4-3 (regex sans spaces)
+// E.164: leading digit must be 1-9; total digits (excluding '+') between 7-15
+const e164 = /^\+[1-9]\d{6,14}$/;
+// const dateSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
+const dateSource = `(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))`;
+const date = /*@__PURE__*/ new RegExp(`^${dateSource}$`);
+function timeSource(args) {
+    const hhmm = `(?:[01]\\d|2[0-3]):[0-5]\\d`;
+    const regex = typeof args.precision === "number"
+        ? args.precision === -1
+            ? `${hhmm}`
+            : args.precision === 0
+                ? `${hhmm}:[0-5]\\d`
+                : `${hhmm}:[0-5]\\d\\.\\d{${args.precision}}`
+        : `${hhmm}(?::[0-5]\\d(?:\\.\\d+)?)?`;
+    return regex;
+}
+function time(args) {
+    return new RegExp(`^${timeSource(args)}$`);
+}
+// Adapted from https://stackoverflow.com/a/3143231
+function datetime(args) {
+    const time = timeSource({ precision: args.precision });
+    const opts = ["Z"];
+    if (args.local)
+        opts.push("");
+    // if (args.offset) opts.push(`([+-]\\d{2}:\\d{2})`);
+    if (args.offset)
+        opts.push(`([+-](?:[01]\\d|2[0-3]):[0-5]\\d)`);
+    const timeRegex = `${time}(?:${opts.join("|")})`;
+    return new RegExp(`^${dateSource}T(?:${timeRegex})$`);
+}
+const string = (params) => {
+    const regex = params ? `[\\s\\S]{${params?.minimum ?? 0},${params?.maximum ?? ""}}` : `[\\s\\S]*`;
+    return new RegExp(`^${regex}$`);
+};
+const bigint = /^-?\d+n?$/;
+const integer = /^-?\d+$/;
+const number = /^-?\d+(?:\.\d+)?$/;
+const regexes_boolean = /^(?:true|false)$/i;
+const _null = /^null$/i;
+
+const _undefined = /^undefined$/i;
+
+// regex for string with no uppercase letters
+const lowercase = /^[^A-Z]*$/;
+// regex for string with no lowercase letters
+const uppercase = /^[^a-z]*$/;
+// regex for hexadecimal strings (any length)
+const hex = /^[0-9a-fA-F]*$/;
+// Hash regexes for different algorithms and encodings
+// Helper function to create base64 regex with exact length and padding
+function fixedBase64(bodyLength, padding) {
+    return new RegExp(`^[A-Za-z0-9+/]{${bodyLength}}${padding}$`);
+}
+// Helper function to create base64url regex with exact length (no padding)
+function fixedBase64url(length) {
+    return new RegExp(`^[A-Za-z0-9_-]{${length}}$`);
+}
+// MD5 (16 bytes): base64 = 24 chars total (22 + "==")
+const md5_hex = /^[0-9a-fA-F]{32}$/;
+const md5_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(22, "==")));
+const md5_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(22)));
+// SHA1 (20 bytes): base64 = 28 chars total (27 + "=")
+const sha1_hex = /^[0-9a-fA-F]{40}$/;
+const sha1_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(27, "=")));
+const sha1_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(27)));
+// SHA256 (32 bytes): base64 = 44 chars total (43 + "=")
+const sha256_hex = /^[0-9a-fA-F]{64}$/;
+const sha256_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(43, "=")));
+const sha256_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(43)));
+// SHA384 (48 bytes): base64 = 64 chars total (no padding)
+const sha384_hex = /^[0-9a-fA-F]{96}$/;
+const sha384_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(64, "")));
+const sha384_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(64)));
+// SHA512 (64 bytes): base64 = 88 chars total (86 + "==")
+const sha512_hex = /^[0-9a-fA-F]{128}$/;
+const sha512_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(86, "==")));
+const sha512_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(86)));
 
 ;// CONCATENATED MODULE: ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/util.js
 
@@ -60588,7 +60727,7 @@ const $ZodCheckLengthEquals = /*@__PURE__*/ $constructor("$ZodCheckLengthEquals"
         });
     };
 });
-const $ZodCheckStringFormat = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckStringFormat", (inst, def) => {
+const $ZodCheckStringFormat = /*@__PURE__*/ $constructor("$ZodCheckStringFormat", (inst, def) => {
     var _a, _b;
     $ZodCheck.init(inst, def);
     inst._zod.onattach.push((inst) => {
@@ -60616,8 +60755,8 @@ const $ZodCheckStringFormat = /*@__PURE__*/ (/* unused pure expression or super 
         });
     else
         (_b = inst._zod).check ?? (_b.check = () => { });
-})));
-const $ZodCheckRegex = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckRegex", (inst, def) => {
+});
+const $ZodCheckRegex = /*@__PURE__*/ $constructor("$ZodCheckRegex", (inst, def) => {
     $ZodCheckStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
         def.pattern.lastIndex = 0;
@@ -60633,18 +60772,18 @@ const $ZodCheckRegex = /*@__PURE__*/ (/* unused pure expression or super */ null
             continue: !def.abort,
         });
     };
-})));
-const $ZodCheckLowerCase = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckLowerCase", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.lowercase);
+});
+const $ZodCheckLowerCase = /*@__PURE__*/ $constructor("$ZodCheckLowerCase", (inst, def) => {
+    def.pattern ?? (def.pattern = lowercase);
     $ZodCheckStringFormat.init(inst, def);
-})));
-const $ZodCheckUpperCase = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckUpperCase", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.uppercase);
+});
+const $ZodCheckUpperCase = /*@__PURE__*/ $constructor("$ZodCheckUpperCase", (inst, def) => {
+    def.pattern ?? (def.pattern = uppercase);
     $ZodCheckStringFormat.init(inst, def);
-})));
-const $ZodCheckIncludes = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckIncludes", (inst, def) => {
+});
+const $ZodCheckIncludes = /*@__PURE__*/ $constructor("$ZodCheckIncludes", (inst, def) => {
     $ZodCheck.init(inst, def);
-    const escapedRegex = util.escapeRegex(def.includes);
+    const escapedRegex = escapeRegex(def.includes);
     const pattern = new RegExp(typeof def.position === "number" ? `^.{${def.position}}${escapedRegex}` : escapedRegex);
     def.pattern = pattern;
     inst._zod.onattach.push((inst) => {
@@ -60665,10 +60804,10 @@ const $ZodCheckIncludes = /*@__PURE__*/ (/* unused pure expression or super */ n
             continue: !def.abort,
         });
     };
-})));
-const $ZodCheckStartsWith = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckStartsWith", (inst, def) => {
+});
+const $ZodCheckStartsWith = /*@__PURE__*/ $constructor("$ZodCheckStartsWith", (inst, def) => {
     $ZodCheck.init(inst, def);
-    const pattern = new RegExp(`^${util.escapeRegex(def.prefix)}.*`);
+    const pattern = new RegExp(`^${escapeRegex(def.prefix)}.*`);
     def.pattern ?? (def.pattern = pattern);
     inst._zod.onattach.push((inst) => {
         const bag = inst._zod.bag;
@@ -60688,10 +60827,10 @@ const $ZodCheckStartsWith = /*@__PURE__*/ (/* unused pure expression or super */
             continue: !def.abort,
         });
     };
-})));
-const $ZodCheckEndsWith = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCheckEndsWith", (inst, def) => {
+});
+const $ZodCheckEndsWith = /*@__PURE__*/ $constructor("$ZodCheckEndsWith", (inst, def) => {
     $ZodCheck.init(inst, def);
-    const pattern = new RegExp(`.*${util.escapeRegex(def.suffix)}$`);
+    const pattern = new RegExp(`.*${escapeRegex(def.suffix)}$`);
     def.pattern ?? (def.pattern = pattern);
     inst._zod.onattach.push((inst) => {
         const bag = inst._zod.bag;
@@ -60711,7 +60850,7 @@ const $ZodCheckEndsWith = /*@__PURE__*/ (/* unused pure expression or super */ n
             continue: !def.abort,
         });
     };
-})));
+});
 ///////////////////////////////////
 /////    $ZodCheckProperty    /////
 ///////////////////////////////////
@@ -61078,147 +61217,6 @@ const _safeDecodeAsync = (_Err) => async (schema, value, _ctx) => {
 };
 const safeDecodeAsync = /* @__PURE__*/ _safeDecodeAsync($ZodRealError);
 
-;// CONCATENATED MODULE: ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/regexes.js
-
-/**
- * @deprecated CUID v1 is deprecated by its authors due to information leakage
- * (timestamps embedded in the id). Use {@link cuid2} instead.
- * See https://github.com/paralleldrive/cuid.
- */
-const cuid = /^[cC][0-9a-z]{6,}$/;
-const cuid2 = /^[0-9a-z]+$/;
-const ulid = /^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/;
-const xid = /^[0-9a-vA-V]{20}$/;
-const ksuid = /^[A-Za-z0-9]{27}$/;
-const nanoid = /^[a-zA-Z0-9_-]{21}$/;
-/** ISO 8601-1 duration regex. Does not support the 8601-2 extensions like negative durations or fractional/negative components. */
-const duration = /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/;
-/** Implements ISO 8601-2 extensions like explicit +- prefixes, mixing weeks with other units, and fractional/negative components. */
-const extendedDuration = /^[-+]?P(?!$)(?:(?:[-+]?\d+Y)|(?:[-+]?\d+[.,]\d+Y$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:(?:[-+]?\d+W)|(?:[-+]?\d+[.,]\d+W$))?(?:(?:[-+]?\d+D)|(?:[-+]?\d+[.,]\d+D$))?(?:T(?=[\d+-])(?:(?:[-+]?\d+H)|(?:[-+]?\d+[.,]\d+H$))?(?:(?:[-+]?\d+M)|(?:[-+]?\d+[.,]\d+M$))?(?:[-+]?\d+(?:[.,]\d+)?S)?)??$/;
-/** A regex for any UUID-like identifier: 8-4-4-4-12 hex pattern */
-const guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
-/** Returns a regex for validating an RFC 9562/4122 UUID.
- *
- * @param version Optionally specify a version 1-8. If no version is specified, all versions are supported. */
-const uuid = (version) => {
-    if (!version)
-        return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
-    return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
-};
-const uuid4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(4)));
-const uuid6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(6)));
-const uuid7 = /*@__PURE__*/ (/* unused pure expression or super */ null && (uuid(7)));
-/** Practical email validation */
-const email = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
-/** Equivalent to the HTML5 input[type=email] validation implemented by browsers. Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email */
-const html5Email = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-/** The classic emailregex.com regex for RFC 5322-compliant emails */
-const rfc5322Email = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-/** A loose regex that allows Unicode characters, enforces length limits, and that's about it. */
-const unicodeEmail = /^[^\s@"]{1,64}@[^\s@]{1,255}$/u;
-const idnEmail = (/* unused pure expression or super */ null && (unicodeEmail));
-const browserEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-// from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
-const _emoji = (/* unused pure expression or super */ null && (`^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`));
-function emoji() {
-    return new RegExp(_emoji, "u");
-}
-const ipv4 = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
-const ipv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))$/;
-const mac = (delimiter) => {
-    const escapedDelim = util.escapeRegex(delimiter ?? ":");
-    return new RegExp(`^(?:[0-9A-F]{2}${escapedDelim}){5}[0-9A-F]{2}$|^(?:[0-9a-f]{2}${escapedDelim}){5}[0-9a-f]{2}$`);
-};
-const cidrv4 = /^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/([0-9]|[1-2][0-9]|3[0-2])$/;
-const cidrv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
-// https://stackoverflow.com/questions/7860392/determine-if-string-is-in-base64-using-javascript
-const base64 = /^$|^(?:[0-9a-zA-Z+/]{4})*(?:(?:[0-9a-zA-Z+/]{2}==)|(?:[0-9a-zA-Z+/]{3}=))?$/;
-const base64url = /^[A-Za-z0-9_-]*$/;
-// based on https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
-// export const hostname: RegExp = /^([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+$/;
-const hostname = /^(?=.{1,253}\.?$)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[-0-9a-zA-Z]{0,61}[0-9a-zA-Z])?)*\.?$/;
-const domain = /^([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
-const httpProtocol = /^https?$/;
-// https://blog.stevenlevithan.com/archives/validate-phone-number#r4-3 (regex sans spaces)
-// E.164: leading digit must be 1-9; total digits (excluding '+') between 7-15
-const e164 = /^\+[1-9]\d{6,14}$/;
-// const dateSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
-const dateSource = `(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))`;
-const date = /*@__PURE__*/ new RegExp(`^${dateSource}$`);
-function timeSource(args) {
-    const hhmm = `(?:[01]\\d|2[0-3]):[0-5]\\d`;
-    const regex = typeof args.precision === "number"
-        ? args.precision === -1
-            ? `${hhmm}`
-            : args.precision === 0
-                ? `${hhmm}:[0-5]\\d`
-                : `${hhmm}:[0-5]\\d\\.\\d{${args.precision}}`
-        : `${hhmm}(?::[0-5]\\d(?:\\.\\d+)?)?`;
-    return regex;
-}
-function time(args) {
-    return new RegExp(`^${timeSource(args)}$`);
-}
-// Adapted from https://stackoverflow.com/a/3143231
-function datetime(args) {
-    const time = timeSource({ precision: args.precision });
-    const opts = ["Z"];
-    if (args.local)
-        opts.push("");
-    // if (args.offset) opts.push(`([+-]\\d{2}:\\d{2})`);
-    if (args.offset)
-        opts.push(`([+-](?:[01]\\d|2[0-3]):[0-5]\\d)`);
-    const timeRegex = `${time}(?:${opts.join("|")})`;
-    return new RegExp(`^${dateSource}T(?:${timeRegex})$`);
-}
-const string = (params) => {
-    const regex = params ? `[\\s\\S]{${params?.minimum ?? 0},${params?.maximum ?? ""}}` : `[\\s\\S]*`;
-    return new RegExp(`^${regex}$`);
-};
-const bigint = /^-?\d+n?$/;
-const integer = /^-?\d+$/;
-const number = /^-?\d+(?:\.\d+)?$/;
-const regexes_boolean = /^(?:true|false)$/i;
-const _null = /^null$/i;
-
-const _undefined = /^undefined$/i;
-
-// regex for string with no uppercase letters
-const lowercase = /^[^A-Z]*$/;
-// regex for string with no lowercase letters
-const uppercase = /^[^a-z]*$/;
-// regex for hexadecimal strings (any length)
-const hex = /^[0-9a-fA-F]*$/;
-// Hash regexes for different algorithms and encodings
-// Helper function to create base64 regex with exact length and padding
-function fixedBase64(bodyLength, padding) {
-    return new RegExp(`^[A-Za-z0-9+/]{${bodyLength}}${padding}$`);
-}
-// Helper function to create base64url regex with exact length (no padding)
-function fixedBase64url(length) {
-    return new RegExp(`^[A-Za-z0-9_-]{${length}}$`);
-}
-// MD5 (16 bytes): base64 = 24 chars total (22 + "==")
-const md5_hex = /^[0-9a-fA-F]{32}$/;
-const md5_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(22, "==")));
-const md5_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(22)));
-// SHA1 (20 bytes): base64 = 28 chars total (27 + "=")
-const sha1_hex = /^[0-9a-fA-F]{40}$/;
-const sha1_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(27, "=")));
-const sha1_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(27)));
-// SHA256 (32 bytes): base64 = 44 chars total (43 + "=")
-const sha256_hex = /^[0-9a-fA-F]{64}$/;
-const sha256_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(43, "=")));
-const sha256_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(43)));
-// SHA384 (48 bytes): base64 = 64 chars total (no padding)
-const sha384_hex = /^[0-9a-fA-F]{96}$/;
-const sha384_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(64, "")));
-const sha384_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(64)));
-// SHA512 (64 bytes): base64 = 88 chars total (86 + "==")
-const sha512_hex = /^[0-9a-fA-F]{128}$/;
-const sha512_base64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64(86, "==")));
-const sha512_base64url = /*@__PURE__*/ (/* unused pure expression or super */ null && (fixedBase64url(86)));
-
 ;// CONCATENATED MODULE: ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/versions.js
 const version = {
     major: 4,
@@ -61359,9 +61357,9 @@ const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
     }));
 });
 
-const $ZodString = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodString", (inst, def) => {
+const $ZodString = /*@__PURE__*/ $constructor("$ZodString", (inst, def) => {
     $ZodType.init(inst, def);
-    inst._zod.pattern = [...(inst?._zod.bag?.patterns ?? [])].pop() ?? regexes.string(inst._zod.bag);
+    inst._zod.pattern = [...(inst?._zod.bag?.patterns ?? [])].pop() ?? string(inst._zod.bag);
     inst._zod.parse = (payload, _) => {
         if (def.coerce)
             try {
@@ -61378,17 +61376,17 @@ const $ZodString = /*@__PURE__*/ (/* unused pure expression or super */ null && 
         });
         return payload;
     };
-})));
-const $ZodStringFormat = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodStringFormat", (inst, def) => {
+});
+const $ZodStringFormat = /*@__PURE__*/ $constructor("$ZodStringFormat", (inst, def) => {
     // check initialization must come first
-    checks.$ZodCheckStringFormat.init(inst, def);
+    $ZodCheckStringFormat.init(inst, def);
     $ZodString.init(inst, def);
-})));
-const $ZodGUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodGUID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.guid);
+});
+const $ZodGUID = /*@__PURE__*/ $constructor("$ZodGUID", (inst, def) => {
+    def.pattern ?? (def.pattern = guid);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodUUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodUUID", (inst, def) => {
+});
+const $ZodUUID = /*@__PURE__*/ $constructor("$ZodUUID", (inst, def) => {
     if (def.version) {
         const versionMap = {
             v1: 1,
@@ -61403,17 +61401,17 @@ const $ZodUUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (c
         const v = versionMap[def.version];
         if (v === undefined)
             throw new Error(`Invalid UUID version: "${def.version}"`);
-        def.pattern ?? (def.pattern = regexes.uuid(v));
+        def.pattern ?? (def.pattern = uuid(v));
     }
     else
-        def.pattern ?? (def.pattern = regexes.uuid());
+        def.pattern ?? (def.pattern = uuid());
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodEmail = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodEmail", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.email);
+});
+const $ZodEmail = /*@__PURE__*/ $constructor("$ZodEmail", (inst, def) => {
+    def.pattern ?? (def.pattern = email);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodURL = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodURL", (inst, def) => {
+});
+const $ZodURL = /*@__PURE__*/ $constructor("$ZodURL", (inst, def) => {
     $ZodStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
         try {
@@ -61421,7 +61419,7 @@ const $ZodURL = /*@__PURE__*/ (/* unused pure expression or super */ null && (co
             const trimmed = payload.value.trim();
             // When normalize is off, require :// for http/https URLs
             // This prevents strings like "http:example.com" or "https:/path" from being silently accepted
-            if (!def.normalize && def.protocol?.source === regexes.httpProtocol.source) {
+            if (!def.normalize && def.protocol?.source === httpProtocol.source) {
                 if (!/^https?:\/\//i.test(trimmed)) {
                     payload.issues.push({
                         code: "invalid_format",
@@ -61485,63 +61483,63 @@ const $ZodURL = /*@__PURE__*/ (/* unused pure expression or super */ null && (co
             });
         }
     };
-})));
-const $ZodEmoji = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodEmoji", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.emoji());
+});
+const $ZodEmoji = /*@__PURE__*/ $constructor("$ZodEmoji", (inst, def) => {
+    def.pattern ?? (def.pattern = emoji());
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodNanoID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodNanoID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.nanoid);
+});
+const $ZodNanoID = /*@__PURE__*/ $constructor("$ZodNanoID", (inst, def) => {
+    def.pattern ?? (def.pattern = nanoid);
     $ZodStringFormat.init(inst, def);
-})));
+});
 /**
  * @deprecated CUID v1 is deprecated by its authors due to information leakage
  * (timestamps embedded in the id). Use {@link $ZodCUID2} instead.
  * See https://github.com/paralleldrive/cuid.
  */
-const $ZodCUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCUID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cuid);
+const $ZodCUID = /*@__PURE__*/ $constructor("$ZodCUID", (inst, def) => {
+    def.pattern ?? (def.pattern = cuid);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodCUID2 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCUID2", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cuid2);
+});
+const $ZodCUID2 = /*@__PURE__*/ $constructor("$ZodCUID2", (inst, def) => {
+    def.pattern ?? (def.pattern = cuid2);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodULID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodULID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ulid);
+});
+const $ZodULID = /*@__PURE__*/ $constructor("$ZodULID", (inst, def) => {
+    def.pattern ?? (def.pattern = ulid);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodXID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodXID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.xid);
+});
+const $ZodXID = /*@__PURE__*/ $constructor("$ZodXID", (inst, def) => {
+    def.pattern ?? (def.pattern = xid);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodKSUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodKSUID", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ksuid);
+});
+const $ZodKSUID = /*@__PURE__*/ $constructor("$ZodKSUID", (inst, def) => {
+    def.pattern ?? (def.pattern = ksuid);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodISODateTime = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodISODateTime", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.datetime(def));
+});
+const $ZodISODateTime = /*@__PURE__*/ $constructor("$ZodISODateTime", (inst, def) => {
+    def.pattern ?? (def.pattern = datetime(def));
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodISODate = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodISODate", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.date);
+});
+const $ZodISODate = /*@__PURE__*/ $constructor("$ZodISODate", (inst, def) => {
+    def.pattern ?? (def.pattern = date);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodISOTime = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodISOTime", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.time(def));
+});
+const $ZodISOTime = /*@__PURE__*/ $constructor("$ZodISOTime", (inst, def) => {
+    def.pattern ?? (def.pattern = time(def));
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodISODuration = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodISODuration", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.duration);
+});
+const $ZodISODuration = /*@__PURE__*/ $constructor("$ZodISODuration", (inst, def) => {
+    def.pattern ?? (def.pattern = duration);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodIPv4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodIPv4", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ipv4);
+});
+const $ZodIPv4 = /*@__PURE__*/ $constructor("$ZodIPv4", (inst, def) => {
+    def.pattern ?? (def.pattern = ipv4);
     $ZodStringFormat.init(inst, def);
     inst._zod.bag.format = `ipv4`;
-})));
-const $ZodIPv6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodIPv6", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.ipv6);
+});
+const $ZodIPv6 = /*@__PURE__*/ $constructor("$ZodIPv6", (inst, def) => {
+    def.pattern ?? (def.pattern = ipv6);
     $ZodStringFormat.init(inst, def);
     inst._zod.bag.format = `ipv6`;
     inst._zod.check = (payload) => {
@@ -61560,18 +61558,18 @@ const $ZodIPv6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (c
             });
         }
     };
-})));
+});
 const $ZodMAC = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodMAC", (inst, def) => {
     def.pattern ?? (def.pattern = regexes.mac(def.delimiter));
     $ZodStringFormat.init(inst, def);
     inst._zod.bag.format = `mac`;
 })));
-const $ZodCIDRv4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCIDRv4", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cidrv4);
+const $ZodCIDRv4 = /*@__PURE__*/ $constructor("$ZodCIDRv4", (inst, def) => {
+    def.pattern ?? (def.pattern = cidrv4);
     $ZodStringFormat.init(inst, def);
-})));
-const $ZodCIDRv6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCIDRv6", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.cidrv6); // not used for validation
+});
+const $ZodCIDRv6 = /*@__PURE__*/ $constructor("$ZodCIDRv6", (inst, def) => {
+    def.pattern ?? (def.pattern = cidrv6); // not used for validation
     $ZodStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
         const parts = payload.value.split("/");
@@ -61599,7 +61597,7 @@ const $ZodCIDRv6 = /*@__PURE__*/ (/* unused pure expression or super */ null && 
             });
         }
     };
-})));
+});
 //////////////////////////////   ZodBase64   //////////////////////////////
 function isValidBase64(data) {
     if (data === "")
@@ -61618,8 +61616,8 @@ function isValidBase64(data) {
         return false;
     }
 }
-const $ZodBase64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodBase64", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.base64);
+const $ZodBase64 = /*@__PURE__*/ $constructor("$ZodBase64", (inst, def) => {
+    def.pattern ?? (def.pattern = base64);
     $ZodStringFormat.init(inst, def);
     inst._zod.bag.contentEncoding = "base64";
     inst._zod.check = (payload) => {
@@ -61633,17 +61631,17 @@ const $ZodBase64 = /*@__PURE__*/ (/* unused pure expression or super */ null && 
             continue: !def.abort,
         });
     };
-})));
+});
 //////////////////////////////   ZodBase64   //////////////////////////////
 function isValidBase64URL(data) {
-    if (!regexes.base64url.test(data))
+    if (!base64url.test(data))
         return false;
     const base64 = data.replace(/[-_]/g, (c) => (c === "-" ? "+" : "/"));
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
     return isValidBase64(padded);
 }
-const $ZodBase64URL = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodBase64URL", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.base64url);
+const $ZodBase64URL = /*@__PURE__*/ $constructor("$ZodBase64URL", (inst, def) => {
+    def.pattern ?? (def.pattern = base64url);
     $ZodStringFormat.init(inst, def);
     inst._zod.bag.contentEncoding = "base64url";
     inst._zod.check = (payload) => {
@@ -61657,11 +61655,11 @@ const $ZodBase64URL = /*@__PURE__*/ (/* unused pure expression or super */ null 
             continue: !def.abort,
         });
     };
-})));
-const $ZodE164 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodE164", (inst, def) => {
-    def.pattern ?? (def.pattern = regexes.e164);
+});
+const $ZodE164 = /*@__PURE__*/ $constructor("$ZodE164", (inst, def) => {
+    def.pattern ?? (def.pattern = e164);
     $ZodStringFormat.init(inst, def);
-})));
+});
 //////////////////////////////   ZodJWT   //////////////////////////////
 function isValidJWT(token, algorithm = null) {
     try {
@@ -61685,7 +61683,7 @@ function isValidJWT(token, algorithm = null) {
         return false;
     }
 }
-const $ZodJWT = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodJWT", (inst, def) => {
+const $ZodJWT = /*@__PURE__*/ $constructor("$ZodJWT", (inst, def) => {
     $ZodStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
         if (isValidJWT(payload.value, def.alg))
@@ -61698,7 +61696,7 @@ const $ZodJWT = /*@__PURE__*/ (/* unused pure expression or super */ null && (co
             continue: !def.abort,
         });
     };
-})));
+});
 const $ZodCustomStringFormat = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("$ZodCustomStringFormat", (inst, def) => {
     $ZodStringFormat.init(inst, def);
     inst._zod.check = (payload) => {
@@ -63529,7 +63527,7 @@ const globalRegistry = globalThis.__zod_globalRegistry;
 function _string(Class, params) {
     return new Class({
         type: "string",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63547,7 +63545,7 @@ function _email(Class, params) {
         format: "email",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63557,7 +63555,7 @@ function _guid(Class, params) {
         format: "guid",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63567,7 +63565,7 @@ function _uuid(Class, params) {
         format: "uuid",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63578,7 +63576,7 @@ function _uuidv4(Class, params) {
         check: "string_format",
         abort: false,
         version: "v4",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63589,7 +63587,7 @@ function _uuidv6(Class, params) {
         check: "string_format",
         abort: false,
         version: "v6",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63600,7 +63598,7 @@ function _uuidv7(Class, params) {
         check: "string_format",
         abort: false,
         version: "v7",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63610,7 +63608,7 @@ function _url(Class, params) {
         format: "url",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63620,7 +63618,7 @@ function api_emoji(Class, params) {
         format: "emoji",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63630,7 +63628,7 @@ function _nanoid(Class, params) {
         format: "nanoid",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 /**
@@ -63645,7 +63643,7 @@ function _cuid(Class, params) {
         format: "cuid",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63655,7 +63653,7 @@ function _cuid2(Class, params) {
         format: "cuid2",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63665,7 +63663,7 @@ function _ulid(Class, params) {
         format: "ulid",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63675,7 +63673,7 @@ function _xid(Class, params) {
         format: "xid",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63685,7 +63683,7 @@ function _ksuid(Class, params) {
         format: "ksuid",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63695,7 +63693,7 @@ function _ipv4(Class, params) {
         format: "ipv4",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63705,7 +63703,7 @@ function _ipv6(Class, params) {
         format: "ipv6",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63725,7 +63723,7 @@ function _cidrv4(Class, params) {
         format: "cidrv4",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63735,7 +63733,7 @@ function _cidrv6(Class, params) {
         format: "cidrv6",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63745,7 +63743,7 @@ function _base64(Class, params) {
         format: "base64",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63755,7 +63753,7 @@ function _base64url(Class, params) {
         format: "base64url",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63765,7 +63763,7 @@ function _e164(Class, params) {
         format: "e164",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63775,7 +63773,7 @@ function _jwt(Class, params) {
         format: "jwt",
         check: "string_format",
         abort: false,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 const TimePrecision = {
@@ -63794,7 +63792,7 @@ function _isoDateTime(Class, params) {
         offset: false,
         local: false,
         precision: null,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63803,7 +63801,7 @@ function _isoDate(Class, params) {
         type: "string",
         format: "date",
         check: "string_format",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63813,7 +63811,7 @@ function _isoTime(Class, params) {
         format: "time",
         check: "string_format",
         precision: null,
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -63822,7 +63820,7 @@ function _isoDuration(Class, params) {
         type: "string",
         format: "duration",
         check: "string_format",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
@@ -64127,53 +64125,53 @@ function _length(length, params) {
 }
 // @__NO_SIDE_EFFECTS__
 function _regex(pattern, params) {
-    return new checks.$ZodCheckRegex({
+    return new $ZodCheckRegex({
         check: "string_format",
         format: "regex",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
         pattern,
     });
 }
 // @__NO_SIDE_EFFECTS__
 function _lowercase(params) {
-    return new checks.$ZodCheckLowerCase({
+    return new $ZodCheckLowerCase({
         check: "string_format",
         format: "lowercase",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
 function _uppercase(params) {
-    return new checks.$ZodCheckUpperCase({
+    return new $ZodCheckUpperCase({
         check: "string_format",
         format: "uppercase",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
     });
 }
 // @__NO_SIDE_EFFECTS__
 function _includes(includes, params) {
-    return new checks.$ZodCheckIncludes({
+    return new $ZodCheckIncludes({
         check: "string_format",
         format: "includes",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
         includes,
     });
 }
 // @__NO_SIDE_EFFECTS__
 function _startsWith(prefix, params) {
-    return new checks.$ZodCheckStartsWith({
+    return new $ZodCheckStartsWith({
         check: "string_format",
         format: "starts_with",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
         prefix,
     });
 }
 // @__NO_SIDE_EFFECTS__
 function _endsWith(suffix, params) {
-    return new checks.$ZodCheckEndsWith({
+    return new $ZodCheckEndsWith({
         check: "string_format",
         format: "ends_with",
-        ...util.normalizeParams(params),
+        ...normalizeParams(params),
         suffix,
     });
 }
@@ -64224,7 +64222,7 @@ function _toUpperCase() {
 // slugify
 // @__NO_SIDE_EFFECTS__
 function _slugify() {
-    return _overwrite((input) => util.slugify(input));
+    return _overwrite((input) => slugify(input));
 }
 // @__NO_SIDE_EFFECTS__
 function _array(Class, element, params) {
@@ -65658,6 +65656,38 @@ function toJSONSchema(input, params) {
     return finalize(ctx, input);
 }
 
+;// CONCATENATED MODULE: ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/classic/iso.js
+
+
+const ZodISODateTime = /*@__PURE__*/ $constructor("ZodISODateTime", (inst, def) => {
+    $ZodISODateTime.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+function iso_datetime(params) {
+    return _isoDateTime(ZodISODateTime, params);
+}
+const ZodISODate = /*@__PURE__*/ $constructor("ZodISODate", (inst, def) => {
+    $ZodISODate.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+function iso_date(params) {
+    return _isoDate(ZodISODate, params);
+}
+const ZodISOTime = /*@__PURE__*/ $constructor("ZodISOTime", (inst, def) => {
+    $ZodISOTime.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+function iso_time(params) {
+    return _isoTime(ZodISOTime, params);
+}
+const ZodISODuration = /*@__PURE__*/ $constructor("ZodISODuration", (inst, def) => {
+    $ZodISODuration.init(inst, def);
+    ZodStringFormat.init(inst, def);
+});
+function iso_duration(params) {
+    return _isoDuration(ZodISODuration, params);
+}
+
 ;// CONCATENATED MODULE: ../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/classic/errors.js
 
 
@@ -65926,122 +65956,122 @@ const ZodType = /*@__PURE__*/ $constructor("ZodType", (inst, def) => {
     return inst;
 });
 /** @internal */
-const _ZodString = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("_ZodString", (inst, def) => {
-    core.$ZodString.init(inst, def);
+const _ZodString = /*@__PURE__*/ $constructor("_ZodString", (inst, def) => {
+    $ZodString.init(inst, def);
     ZodType.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json, params) => processors.stringProcessor(inst, ctx, json, params);
+    inst._zod.processJSONSchema = (ctx, json, params) => stringProcessor(inst, ctx, json, params);
     const bag = inst._zod.bag;
     inst.format = bag.format ?? null;
     inst.minLength = bag.minimum ?? null;
     inst.maxLength = bag.maximum ?? null;
     _installLazyMethods(inst, "_ZodString", {
         regex(...args) {
-            return this.check(checks.regex(...args));
+            return this.check(_regex(...args));
         },
         includes(...args) {
-            return this.check(checks.includes(...args));
+            return this.check(_includes(...args));
         },
         startsWith(...args) {
-            return this.check(checks.startsWith(...args));
+            return this.check(_startsWith(...args));
         },
         endsWith(...args) {
-            return this.check(checks.endsWith(...args));
+            return this.check(_endsWith(...args));
         },
         min(...args) {
-            return this.check(checks.minLength(...args));
+            return this.check(_minLength(...args));
         },
         max(...args) {
-            return this.check(checks.maxLength(...args));
+            return this.check(_maxLength(...args));
         },
         length(...args) {
-            return this.check(checks.length(...args));
+            return this.check(_length(...args));
         },
         nonempty(...args) {
-            return this.check(checks.minLength(1, ...args));
+            return this.check(_minLength(1, ...args));
         },
         lowercase(params) {
-            return this.check(checks.lowercase(params));
+            return this.check(_lowercase(params));
         },
         uppercase(params) {
-            return this.check(checks.uppercase(params));
+            return this.check(_uppercase(params));
         },
         trim() {
-            return this.check(checks.trim());
+            return this.check(_trim());
         },
         normalize(...args) {
-            return this.check(checks.normalize(...args));
+            return this.check(_normalize(...args));
         },
         toLowerCase() {
-            return this.check(checks.toLowerCase());
+            return this.check(_toLowerCase());
         },
         toUpperCase() {
-            return this.check(checks.toUpperCase());
+            return this.check(_toUpperCase());
         },
         slugify() {
-            return this.check(checks.slugify());
+            return this.check(_slugify());
         },
     });
-})));
-const ZodString = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodString", (inst, def) => {
-    core.$ZodString.init(inst, def);
+});
+const ZodString = /*@__PURE__*/ $constructor("ZodString", (inst, def) => {
+    $ZodString.init(inst, def);
     _ZodString.init(inst, def);
-    inst.email = (params) => inst.check(core._email(ZodEmail, params));
-    inst.url = (params) => inst.check(core._url(ZodURL, params));
-    inst.jwt = (params) => inst.check(core._jwt(ZodJWT, params));
-    inst.emoji = (params) => inst.check(core._emoji(ZodEmoji, params));
-    inst.guid = (params) => inst.check(core._guid(ZodGUID, params));
-    inst.uuid = (params) => inst.check(core._uuid(ZodUUID, params));
-    inst.uuidv4 = (params) => inst.check(core._uuidv4(ZodUUID, params));
-    inst.uuidv6 = (params) => inst.check(core._uuidv6(ZodUUID, params));
-    inst.uuidv7 = (params) => inst.check(core._uuidv7(ZodUUID, params));
-    inst.nanoid = (params) => inst.check(core._nanoid(ZodNanoID, params));
-    inst.guid = (params) => inst.check(core._guid(ZodGUID, params));
-    inst.cuid = (params) => inst.check(core._cuid(ZodCUID, params));
-    inst.cuid2 = (params) => inst.check(core._cuid2(ZodCUID2, params));
-    inst.ulid = (params) => inst.check(core._ulid(ZodULID, params));
-    inst.base64 = (params) => inst.check(core._base64(ZodBase64, params));
-    inst.base64url = (params) => inst.check(core._base64url(ZodBase64URL, params));
-    inst.xid = (params) => inst.check(core._xid(ZodXID, params));
-    inst.ksuid = (params) => inst.check(core._ksuid(ZodKSUID, params));
-    inst.ipv4 = (params) => inst.check(core._ipv4(ZodIPv4, params));
-    inst.ipv6 = (params) => inst.check(core._ipv6(ZodIPv6, params));
-    inst.cidrv4 = (params) => inst.check(core._cidrv4(ZodCIDRv4, params));
-    inst.cidrv6 = (params) => inst.check(core._cidrv6(ZodCIDRv6, params));
-    inst.e164 = (params) => inst.check(core._e164(ZodE164, params));
+    inst.email = (params) => inst.check(_email(ZodEmail, params));
+    inst.url = (params) => inst.check(_url(ZodURL, params));
+    inst.jwt = (params) => inst.check(_jwt(ZodJWT, params));
+    inst.emoji = (params) => inst.check(api_emoji(ZodEmoji, params));
+    inst.guid = (params) => inst.check(_guid(ZodGUID, params));
+    inst.uuid = (params) => inst.check(_uuid(ZodUUID, params));
+    inst.uuidv4 = (params) => inst.check(_uuidv4(ZodUUID, params));
+    inst.uuidv6 = (params) => inst.check(_uuidv6(ZodUUID, params));
+    inst.uuidv7 = (params) => inst.check(_uuidv7(ZodUUID, params));
+    inst.nanoid = (params) => inst.check(_nanoid(ZodNanoID, params));
+    inst.guid = (params) => inst.check(_guid(ZodGUID, params));
+    inst.cuid = (params) => inst.check(_cuid(ZodCUID, params));
+    inst.cuid2 = (params) => inst.check(_cuid2(ZodCUID2, params));
+    inst.ulid = (params) => inst.check(_ulid(ZodULID, params));
+    inst.base64 = (params) => inst.check(_base64(ZodBase64, params));
+    inst.base64url = (params) => inst.check(_base64url(ZodBase64URL, params));
+    inst.xid = (params) => inst.check(_xid(ZodXID, params));
+    inst.ksuid = (params) => inst.check(_ksuid(ZodKSUID, params));
+    inst.ipv4 = (params) => inst.check(_ipv4(ZodIPv4, params));
+    inst.ipv6 = (params) => inst.check(_ipv6(ZodIPv6, params));
+    inst.cidrv4 = (params) => inst.check(_cidrv4(ZodCIDRv4, params));
+    inst.cidrv6 = (params) => inst.check(_cidrv6(ZodCIDRv6, params));
+    inst.e164 = (params) => inst.check(_e164(ZodE164, params));
     // iso
-    inst.datetime = (params) => inst.check(iso.datetime(params));
-    inst.date = (params) => inst.check(iso.date(params));
-    inst.time = (params) => inst.check(iso.time(params));
-    inst.duration = (params) => inst.check(iso.duration(params));
-})));
+    inst.datetime = (params) => inst.check(iso_datetime(params));
+    inst.date = (params) => inst.check(iso_date(params));
+    inst.time = (params) => inst.check(iso_time(params));
+    inst.duration = (params) => inst.check(iso_duration(params));
+});
 function schemas_string(params) {
-    return core._string(ZodString, params);
+    return _string(ZodString, params);
 }
-const ZodStringFormat = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodStringFormat", (inst, def) => {
-    core.$ZodStringFormat.init(inst, def);
+const ZodStringFormat = /*@__PURE__*/ $constructor("ZodStringFormat", (inst, def) => {
+    $ZodStringFormat.init(inst, def);
     _ZodString.init(inst, def);
-})));
-const ZodEmail = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodEmail", (inst, def) => {
+});
+const ZodEmail = /*@__PURE__*/ $constructor("ZodEmail", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodEmail.init(inst, def);
+    $ZodEmail.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_email(params) {
     return core._email(ZodEmail, params);
 }
-const ZodGUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodGUID", (inst, def) => {
+const ZodGUID = /*@__PURE__*/ $constructor("ZodGUID", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodGUID.init(inst, def);
+    $ZodGUID.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_guid(params) {
     return core._guid(ZodGUID, params);
 }
-const ZodUUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodUUID", (inst, def) => {
+const ZodUUID = /*@__PURE__*/ $constructor("ZodUUID", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodUUID.init(inst, def);
+    $ZodUUID.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_uuid(params) {
     return core._uuid(ZodUUID, params);
 }
@@ -66056,11 +66086,11 @@ function uuidv6(params) {
 function uuidv7(params) {
     return core._uuidv7(ZodUUID, params);
 }
-const ZodURL = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodURL", (inst, def) => {
+const ZodURL = /*@__PURE__*/ $constructor("ZodURL", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodURL.init(inst, def);
+    $ZodURL.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function url(params) {
     return core._url(ZodURL, params);
 }
@@ -66071,19 +66101,19 @@ function httpUrl(params) {
         ...util.normalizeParams(params),
     });
 }
-const ZodEmoji = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodEmoji", (inst, def) => {
+const ZodEmoji = /*@__PURE__*/ $constructor("ZodEmoji", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodEmoji.init(inst, def);
+    $ZodEmoji.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_emoji(params) {
     return core._emoji(ZodEmoji, params);
 }
-const ZodNanoID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodNanoID", (inst, def) => {
+const ZodNanoID = /*@__PURE__*/ $constructor("ZodNanoID", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodNanoID.init(inst, def);
+    $ZodNanoID.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_nanoid(params) {
     return core._nanoid(ZodNanoID, params);
 }
@@ -66092,11 +66122,11 @@ function schemas_nanoid(params) {
  * (timestamps embedded in the id). Use {@link ZodCUID2} instead.
  * See https://github.com/paralleldrive/cuid.
  */
-const ZodCUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodCUID", (inst, def) => {
+const ZodCUID = /*@__PURE__*/ $constructor("ZodCUID", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodCUID.init(inst, def);
+    $ZodCUID.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 /**
  * Validates a CUID v1 string.
  *
@@ -66107,43 +66137,43 @@ const ZodCUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (co
 function schemas_cuid(params) {
     return core._cuid(ZodCUID, params);
 }
-const ZodCUID2 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodCUID2", (inst, def) => {
+const ZodCUID2 = /*@__PURE__*/ $constructor("ZodCUID2", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodCUID2.init(inst, def);
+    $ZodCUID2.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_cuid2(params) {
     return core._cuid2(ZodCUID2, params);
 }
-const ZodULID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodULID", (inst, def) => {
+const ZodULID = /*@__PURE__*/ $constructor("ZodULID", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodULID.init(inst, def);
+    $ZodULID.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_ulid(params) {
     return core._ulid(ZodULID, params);
 }
-const ZodXID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodXID", (inst, def) => {
+const ZodXID = /*@__PURE__*/ $constructor("ZodXID", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodXID.init(inst, def);
+    $ZodXID.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_xid(params) {
     return core._xid(ZodXID, params);
 }
-const ZodKSUID = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodKSUID", (inst, def) => {
+const ZodKSUID = /*@__PURE__*/ $constructor("ZodKSUID", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodKSUID.init(inst, def);
+    $ZodKSUID.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_ksuid(params) {
     return core._ksuid(ZodKSUID, params);
 }
-const ZodIPv4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodIPv4", (inst, def) => {
+const ZodIPv4 = /*@__PURE__*/ $constructor("ZodIPv4", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodIPv4.init(inst, def);
+    $ZodIPv4.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_ipv4(params) {
     return core._ipv4(ZodIPv4, params);
 }
@@ -66155,57 +66185,57 @@ const ZodMAC = /*@__PURE__*/ (/* unused pure expression or super */ null && (cor
 function schemas_mac(params) {
     return core._mac(ZodMAC, params);
 }
-const ZodIPv6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodIPv6", (inst, def) => {
+const ZodIPv6 = /*@__PURE__*/ $constructor("ZodIPv6", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodIPv6.init(inst, def);
+    $ZodIPv6.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_ipv6(params) {
     return core._ipv6(ZodIPv6, params);
 }
-const ZodCIDRv4 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodCIDRv4", (inst, def) => {
-    core.$ZodCIDRv4.init(inst, def);
+const ZodCIDRv4 = /*@__PURE__*/ $constructor("ZodCIDRv4", (inst, def) => {
+    $ZodCIDRv4.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_cidrv4(params) {
     return core._cidrv4(ZodCIDRv4, params);
 }
-const ZodCIDRv6 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodCIDRv6", (inst, def) => {
-    core.$ZodCIDRv6.init(inst, def);
+const ZodCIDRv6 = /*@__PURE__*/ $constructor("ZodCIDRv6", (inst, def) => {
+    $ZodCIDRv6.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_cidrv6(params) {
     return core._cidrv6(ZodCIDRv6, params);
 }
-const ZodBase64 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodBase64", (inst, def) => {
+const ZodBase64 = /*@__PURE__*/ $constructor("ZodBase64", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodBase64.init(inst, def);
+    $ZodBase64.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_base64(params) {
     return core._base64(ZodBase64, params);
 }
-const ZodBase64URL = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodBase64URL", (inst, def) => {
+const ZodBase64URL = /*@__PURE__*/ $constructor("ZodBase64URL", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodBase64URL.init(inst, def);
+    $ZodBase64URL.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_base64url(params) {
     return core._base64url(ZodBase64URL, params);
 }
-const ZodE164 = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodE164", (inst, def) => {
+const ZodE164 = /*@__PURE__*/ $constructor("ZodE164", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodE164.init(inst, def);
+    $ZodE164.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function schemas_e164(params) {
     return core._e164(ZodE164, params);
 }
-const ZodJWT = /*@__PURE__*/ (/* unused pure expression or super */ null && (core.$constructor("ZodJWT", (inst, def) => {
+const ZodJWT = /*@__PURE__*/ $constructor("ZodJWT", (inst, def) => {
     // ZodStringFormat.init(inst, def);
-    core.$ZodJWT.init(inst, def);
+    $ZodJWT.init(inst, def);
     ZodStringFormat.init(inst, def);
-})));
+});
 function jwt(params) {
     return core._jwt(ZodJWT, params);
 }
@@ -78702,6 +78732,8 @@ function renderProfileSvg(stats, config) {
     }
 }
 
+;// CONCATENATED MODULE: external "node:fs/promises"
+const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs/promises");
 ;// CONCATENATED MODULE: ./src/write-svg.ts
 
 
@@ -78742,10 +78774,15 @@ async function generateProfileOutputs(options) {
     log('Fetching public profile data...');
     const client = createClient({ token: options.token });
     const stats = await fetchPublicStats(fetchStats, client, options.username, options.today);
+    if (targets.length === 1) {
+        log('Generating SVG...');
+    }
+    else {
+        log(`Generating ${String(targets.length)} SVGs...`);
+    }
     const svgPaths = [];
     for (const target of targets) {
         const svgPath = (0,external_node_path_namespaceObject.resolve)(cwd, target.output);
-        log('Generating SVG...');
         const svg = renderTargetSvg(render, stats, target);
         await writeSvgFile(svgPath, svg, target.output);
         log(`Profile generated: ${target.output}`);
@@ -78780,6 +78817,149 @@ async function fetchPublicStats(fetchStats, client, username, today) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/manifest/schema.ts
+
+const nonEmptyPath = schemas_string().trim().min(1, 'must be a non-empty string');
+const outputsManifestProfileSchema = object({
+    config: nonEmptyPath,
+    output: nonEmptyPath,
+})
+    .strict();
+const outputsManifestSchema = object({
+    profiles: array(outputsManifestProfileSchema)
+        .min(1, 'must contain at least one profile'),
+})
+    .strict();
+
+;// CONCATENATED MODULE: ./src/manifest/parse.ts
+
+
+
+function parseOutputsManifest(yaml, options = {}) {
+    const value = parse_parseYamlValue(yaml, options.path);
+    const result = outputsManifestSchema.safeParse(value);
+    if (!result.success) {
+        throw new ExpectedError(parse_formatLocatedMessage('Invalid manifest', options.path, formatManifestIssues(result.error)));
+    }
+    assertUniqueManifestOutputs(result.data);
+    return result.data;
+}
+function assertUniqueManifestOutputs(manifest) {
+    const seen = new Set();
+    for (const profile of manifest.profiles) {
+        if (seen.has(profile.output)) {
+            throw new ExpectedError(`Duplicate output path in manifest: ${profile.output}`);
+        }
+        seen.add(profile.output);
+    }
+}
+function parse_parseYamlValue(yaml, path) {
+    if (yaml.trim() === '') {
+        throw new ExpectedError(parse_formatLocatedMessage('Invalid manifest', path, 'profiles must contain at least one profile'));
+    }
+    let value;
+    try {
+        value = (0,dist/* parse */.qg)(yaml);
+    }
+    catch (error) {
+        if (error instanceof dist/* YAMLParseError */.XT) {
+            throw new ExpectedError(parse_formatLocatedMessage('Invalid YAML', path, error.message), { cause: error });
+        }
+        throw error;
+    }
+    if (value == null || typeof value !== 'object' || Array.isArray(value)) {
+        throw new ExpectedError(parse_formatLocatedMessage('Invalid manifest', path, 'root must be an object'));
+    }
+    return value;
+}
+function parse_formatLocatedMessage(prefix, path, detail) {
+    return path == null || path.trim() === ''
+        ? `${prefix}: ${detail}`
+        : `${prefix} in ${path}: ${detail}`;
+}
+function formatManifestIssues(error) {
+    return error.issues
+        .map((issue) => {
+        const path = issue.path.join('.') || 'manifest';
+        if (path === 'profiles' && issue.message.includes('at least one')) {
+            return 'profiles must contain at least one profile';
+        }
+        return `${path}: ${issue.message}`;
+    })
+        .join('; ');
+}
+
+;// CONCATENATED MODULE: ./src/manifest/index.ts
+
+
+
+;// CONCATENATED MODULE: ./src/read-file.ts
+
+
+async function readTextFile(absolutePath, requestedPath, options) {
+    try {
+        return await (0,promises_namespaceObject.readFile)(absolutePath, { encoding: 'utf8' });
+    }
+    catch (error) {
+        if (isNodeError(error) && error.code === 'ENOENT') {
+            throw new ExpectedError(`${options.missingPrefix}: ${requestedPath}`, {
+                cause: error,
+            });
+        }
+        throw new ExpectedError(`${options.readPrefix}: ${requestedPath}: ${getErrorMessage(error)}`, { cause: error });
+    }
+}
+function isNodeError(error) {
+    return error instanceof Error && 'code' in error;
+}
+
+;// CONCATENATED MODULE: ./src/generate-manifest.ts
+
+
+
+
+
+
+async function generateFromManifest(options) {
+    if (options.token.trim() === '') {
+        throw new ExpectedError('GitHub token is required.');
+    }
+    if (options.username.trim() === '') {
+        throw new ExpectedError('Unable to resolve GitHub username.');
+    }
+    const cwd = options.cwd ?? process.cwd();
+    const log = options.log ?? (() => undefined);
+    const manifestPath = (0,external_node_path_namespaceObject.resolve)(cwd, options.manifestPath);
+    log('Reading manifest...');
+    const manifest = parseOutputsManifest(await readTextFile(manifestPath, options.manifestPath, {
+        missingPrefix: 'Manifest file not found',
+        readPrefix: 'Unable to read manifest',
+    }), { path: options.manifestPath });
+    log(`Loading ${String(manifest.profiles.length)} profile configuration${manifest.profiles.length === 1 ? '' : 's'}...`);
+    const targets = [];
+    for (const profile of manifest.profiles) {
+        const config = parseProfileConfig(await readTextFile((0,external_node_path_namespaceObject.resolve)(cwd, profile.config), profile.config, {
+            missingPrefix: 'Configuration file not found',
+            readPrefix: 'Unable to read configuration file',
+        }), { path: profile.config });
+        targets.push({ config, output: profile.output });
+    }
+    const result = await generateProfileOutputs({
+        token: options.token,
+        username: options.username,
+        today: options.today,
+        targets,
+        cwd,
+        createGitHubClient: options.createGitHubClient,
+        fetchProfileStats: options.fetchProfileStats,
+        log,
+    });
+    return {
+        svgPaths: result.svgPaths,
+        outputs: manifest.profiles.map((profile) => profile.output),
+    };
+}
+
 ;// CONCATENATED MODULE: ./src/generate.ts
 
 
@@ -78797,7 +78977,10 @@ async function generateProfile(options) {
     const configPath = (0,external_node_path_namespaceObject.resolve)(cwd, options.configPath);
     const log = options.log ?? (() => undefined);
     log('Reading configuration...');
-    const config = parseProfileConfig(await readConfigFile(configPath, options.configPath), { path: options.configPath });
+    const config = parseProfileConfig(await readTextFile(configPath, options.configPath, {
+        missingPrefix: 'Configuration file not found',
+        readPrefix: 'Unable to read configuration file',
+    }), { path: options.configPath });
     const result = await generateProfileOutputs({
         token: options.token,
         username: options.username,
@@ -78814,22 +78997,6 @@ async function generateProfile(options) {
     }
     return { svgPath };
 }
-async function readConfigFile(absolutePath, requestedPath) {
-    try {
-        return await (0,promises_namespaceObject.readFile)(absolutePath, { encoding: 'utf8' });
-    }
-    catch (error) {
-        if (isNodeError(error) && error.code === 'ENOENT') {
-            throw new ExpectedError(`Configuration file not found: ${requestedPath}`, {
-                cause: error,
-            });
-        }
-        throw new ExpectedError(`Unable to read configuration file: ${requestedPath}: ${getErrorMessage(error)}`, { cause: error });
-    }
-}
-function isNodeError(error) {
-    return error instanceof Error && 'code' in error;
-}
 
 ;// CONCATENATED MODULE: ./src/today.ts
 function utcCalendarDate(now = new Date()) {
@@ -78837,6 +79004,7 @@ function utcCalendarDate(now = new Date()) {
 }
 
 ;// CONCATENATED MODULE: ./src/run.ts
+
 
 
 
@@ -78866,16 +79034,33 @@ async function run(io = createDefaultIO()) {
     try {
         token = readRequiredToken(io);
         io.setSecret(token);
+        const manifestPath = io.getInput('manifest').trim();
+        const username = io.getRepositoryOwner();
+        const today = io.today ?? utcCalendarDate();
+        if (manifestPath !== '') {
+            const result = await (io.generateFromManifest ?? generateFromManifest)({
+                manifestPath,
+                token,
+                username,
+                today,
+                cwd: io.cwd,
+                log: io.info,
+            });
+            io.setOutput('svg-paths', JSON.stringify(result.outputs));
+            return;
+        }
+        const outputPath = io.getInput('output') || DEFAULT_OUTPUT_PATH;
         const result = await (io.generate ?? generateProfile)({
             configPath: io.getInput('config') || DEFAULT_CONFIG_PATH,
-            outputPath: io.getInput('output') || DEFAULT_OUTPUT_PATH,
+            outputPath,
             token,
-            username: io.getRepositoryOwner(),
-            today: io.today ?? utcCalendarDate(),
+            username,
+            today,
             cwd: io.cwd,
             log: io.info,
         });
         io.setOutput('svg-path', result.svgPath);
+        io.setOutput('svg-paths', JSON.stringify([outputPath]));
     }
     catch (error) {
         io.setFailed(redactSecret(getErrorMessage(error), token));
@@ -87108,7 +87293,7 @@ exports.schema = schema;
 
 /***/ }),
 
-/***/ 3889:
+/***/ 6270:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -87192,7 +87377,7 @@ var bool = __nccwpck_require__(4494);
 var float = __nccwpck_require__(5030);
 var int = __nccwpck_require__(2857);
 var schema = __nccwpck_require__(7449);
-var schema$1 = __nccwpck_require__(3889);
+var schema$1 = __nccwpck_require__(6270);
 var binary = __nccwpck_require__(410);
 var merge = __nccwpck_require__(5863);
 var omap = __nccwpck_require__(7078);

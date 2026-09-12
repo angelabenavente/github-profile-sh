@@ -294,83 +294,43 @@ The Action reads `theme` from the config file. Do not pass a theme input.
 
 ## Multiple SVGs
 
-You can split a profile into more than one terminal block. The recommended
-way is one Action invocation with a manifest. That fetches public GitHub
-data once and writes every SVG from the same snapshot.
+Use multiple SVGs when you want text or other Markdown between different
+terminal blocks.
+
+Manifest mode generates all SVGs in one Action run and fetches GitHub data
+only once.
 
 `github-profile-sh init` still writes one config and one generate step.
-Add extra files by hand.
+Add the extra files by hand. This repository keeps a generated copy in
+`examples/multi-svg/`.
 
-In your profile repository:
+### Example
 
-```text
-github-profile-sh.outputs.yml
-github-profile-main.yml
-github-profile-languages.yml
-github-profile.svg
-github-languages.svg
-.github/workflows/github-profile-sh.yml
+```md
+## Stats
+
+![Stats](./github-profile.svg)
+
+Some text between blocks.
+
+## Languages
+
+![Languages](./github-languages.svg)
 ```
-
-Each config is a normal `github-profile-sh.yml`. This repository keeps a
-generated copy in `examples/multi-svg/`.
-
-### Main stats
 
 Ubuntu theme, typing, languages off (`examples/multi-svg/main.yml`):
 
-```yaml
-sections:
-  repos: true
-  stars: true
-  streak: true
-  codeChanges: true
-  languages: false
-
-theme: ubuntu
-
-animation:
-  enabled: true
-  mode: typing
-
-update:
-  frequency: daily
-```
-
-**Result**
-
-![Main stats](./examples/multi-svg/main.svg)
-
-### Languages
+![Stats](./examples/multi-svg/main.svg)
 
 Matrix theme, sequential, only top languages
 (`examples/multi-svg/languages.yml`):
 
-```yaml
-sections:
-  repos: false
-  stars: false
-  streak: false
-  codeChanges: false
-  languages: true
-
-theme: matrix
-
-animation:
-  enabled: true
-  mode: sequential
-
-update:
-  frequency: daily
-```
-
-**Result**
-
-![Top languages](./examples/multi-svg/languages.svg)
+![Languages](./examples/multi-svg/languages.svg)
 
 ### Manifest
 
-Recommended name: `github-profile-sh.outputs.yml`. Any path works.
+Recommended name: `github-profile-sh.outputs.yml`. Any path works. Each
+entry is a normal profile config plus an output path.
 
 ```yaml
 # github-profile-sh.outputs.yml
@@ -383,6 +343,9 @@ profiles:
     output: github-languages.svg
 ```
 
+Paths are resolved from the Action working directory, the same way
+`config` and `output` already are.
+
 ### Workflow
 
 Keep one job. Invoke `angelabenavente/github-profile-sh@v1` once with
@@ -390,7 +353,7 @@ Keep one job. Invoke `angelabenavente/github-profile-sh@v1` once with
 `examples/multi-svg/workflow.yml`.
 
 ```yaml
-- name: Generate profile
+- name: Generate profiles
   uses: angelabenavente/github-profile-sh@v1
   with:
     manifest: github-profile-sh.outputs.yml
@@ -405,25 +368,39 @@ Keep one job. Invoke `angelabenavente/github-profile-sh@v1` once with
     git push
 ```
 
-You can also invoke the Action multiple times, but manifest mode avoids
-fetching the same GitHub data repeatedly.
+You can also invoke the Action multiple times with different
+`config`/`output` pairs, but manifest mode avoids refetching the same
+GitHub data for every SVG.
 
-If both configs set `update.frequency`, pick one schedule for the workflow.
-The Action ignores that field.
+### How it works
 
-### README
-
-```md
-## Stats
-
-![GitHub stats](./github-profile.svg)
-
-Some text between both blocks.
-
-## Languages
-
-![Top languages](./github-languages.svg)
+```text
+github-profile-sh.outputs.yml
+        ↓
+read every ProfileConfig
+        ↓
+fetch public GitHub data once
+        ↓
+render each profile
+        ↓
+github-profile.svg
+github-languages.svg
 ```
+
+All outputs from one run share the same username, date, and GitHub
+snapshot.
+
+### Current limitations
+
+- `github-profile-sh init` still creates a single profile. Multi-output
+  is configured by hand.
+- Each profile uses its own `ProfileConfig` (`sections`, `theme`,
+  `animation`, `update`).
+- The workflow has one schedule. `update.frequency` in each config does
+  not create extra triggers. The Action ignores that field while
+  rendering.
+- Outputs from the same run share one GitHub snapshot. That is
+  intentional.
 
 ## How it works
 
@@ -459,7 +436,8 @@ not call this project.
 - Code changes depends on GitHub contributor statistics. Large repositories
   can return partial data; the value is then prefixed with `~`.
 - The SVG is static. It is not regenerated when someone views the README.
-- Multiple Action steps in one workflow each fetch GitHub data independently.
+- Repeated Action invocations each fetch GitHub data independently.
+  Manifest mode fetches once for every SVG in that run.
 
 ## Development
 

@@ -224,6 +224,7 @@ describe('example SVGs', () => {
     const manifest = parseOutputsManifest(
       readExample(exampleFiles.multiSvgManifest),
     );
+    const outputs = manifest.profiles.map((profile) => profile.output);
 
     expect(actionUses).toHaveLength(1);
     expect(workflow).toContain('manifest: github-profile-sh.outputs.yml');
@@ -240,12 +241,15 @@ describe('example SVGs', () => {
         },
       ],
     });
-    expect(workflow).toContain(
-      'git add github-profile.svg github-languages.svg',
-    );
+    expect(outputs).toEqual(['github-profile.svg', 'github-languages.svg']);
+    expect(workflow).toContain(`git add ${outputs.join(' ')}`);
     expect(workflow).not.toContain('git add .');
     expect(workflow).not.toContain('git add -A');
     expect(workflow).toContain('actions/checkout@v6');
+    expect(existsSync(join(repoRoot, exampleFiles.multiSvgMain))).toBe(true);
+    expect(existsSync(join(repoRoot, exampleFiles.multiSvgLanguages))).toBe(
+      true,
+    );
   });
 
   it('is deterministic', () => {
@@ -269,6 +273,11 @@ describe('README demo', () => {
     expect(matches).toContain('./examples/ubuntu.svg');
     expect(matches).toContain('./examples/multi-svg/main.svg');
     expect(matches).toContain('./examples/multi-svg/languages.svg');
+    expect(readme).toContain(
+      'Manifest mode generates all SVGs in one Action run',
+    );
+    expect(readme).toContain('manifest: github-profile-sh.outputs.yml');
+    expect(readme).toContain('uses: angelabenavente/github-profile-sh@v1');
     expect(matches).not.toContain('./examples/profile.svg');
 
     for (const themeId of themeIds) {

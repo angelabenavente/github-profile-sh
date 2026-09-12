@@ -8,7 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  e2e:
+  e2e-single:
+    name: E2E single
     runs-on: ubuntu-latest
 
     steps:
@@ -35,40 +36,152 @@ jobs:
         run: pnpm build:action
 
       - name: Generate profile
+        id: generate
         uses: ./
         with:
           config: examples/e2e-profile.yml
           output: tmp/e2e/github-profile.svg
           token: ${{ github.token }}
 
-      - name: Generate profiles from manifest
+      - name: Validate generated SVG
+        env:
+          SVG_PATH: ${{ steps.generate.outputs.svg-path }}
+          SVG_PATHS: ${{ steps.generate.outputs.svg-paths }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import { readFileSync, statSync } from 'node:fs';
+
+          const expected = 'tmp/e2e/github-profile.svg';
+          const svgPath = process.env.SVG_PATH ?? '';
+          const paths = JSON.parse(process.env.SVG_PATHS ?? '');
+
+          if (!svgPath.endsWith(expected)) {
+            throw new Error(`svg-path should end with ${expected}, got ${JSON.stringify(svgPath)}`);
+          }
+          if (JSON.stringify(paths) !== JSON.stringify([expected])) {
+            throw new Error(`svg-paths mismatch: ${JSON.stringify(paths)}`);
+          }
+
+          const st = statSync(expected);
+          if (st.size === 0) {
+            throw new Error(`${expected} is empty`);
+          }
+
+          const text = readFileSync(expected, 'utf8');
+          if (!text.includes('<svg')) {
+            throw new Error(`${expected} is not SVG`);
+          }
+          if (!text.includes('github-profile.sh')) {
+            throw new Error(`${expected} missing github-profile.sh`);
+          }
+          if (!text.includes('fetching public profile data')) {
+            throw new Error(`${expected} missing terminal prompt`);
+          }
+          if (/<script|javascript:/i.test(text)) {
+            throw new Error(`${expected} must not contain JavaScript`);
+          }
+          NODE
+
+      - name: Upload generated SVG
+        uses: actions/upload-artifact@v7
+        with:
+          name: github-profile-sh-e2e
+          path: tmp/e2e/github-profile.svg
+          if-no-files-found: error
+
+  e2e-multi:
+    name: E2E multi
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Action bundle
+        run: pnpm build:action
+
+      - name: Generate profiles
+        id: generate
         uses: ./
         with:
           manifest: examples/e2e-outputs.yml
           token: ${{ github.token }}
 
-      - name: Validate generated SVG
+      - name: Validate generated SVGs
+        env:
+          SVG_PATH: ${{ steps.generate.outputs.svg-path }}
+          SVG_PATHS: ${{ steps.generate.outputs.svg-paths }}
         run: |
           set -euo pipefail
-          validate() {
-            file="$1"
-            test -e "$file"
-            test -s "$file"
-            grep -q '<svg' "$file"
-            grep -q 'github-profile.sh' "$file"
-            grep -q 'fetching public profile data' "$file"
-            if grep -qiE '<script|javascript:' "$file"; then
-              echo "SVG must not contain JavaScript"
-              exit 1
-            fi
+          node --input-type=module <<'NODE'
+          import { readFileSync, statSync } from 'node:fs';
+
+          const expected = ['tmp/e2e-multi/main.svg', 'tmp/e2e-multi/languages.svg'];
+          const svgPath = process.env.SVG_PATH ?? '';
+          const paths = JSON.parse(process.env.SVG_PATHS ?? '');
+
+          if (svgPath !== '') {
+            throw new Error(`svg-path must be empty in multi mode, got ${JSON.stringify(svgPath)}`);
           }
-          validate tmp/e2e/github-profile.svg
-          validate tmp/e2e/main.svg
-          validate tmp/e2e/languages.svg
+          if (JSON.stringify(paths) !== JSON.stringify(expected)) {
+            throw new Error(`svg-paths mismatch: ${JSON.stringify(paths)}`);
+          }
+
+          function readSvg(file) {
+            const st = statSync(file);
+            if (st.size === 0) {
+              throw new Error(`${file} is empty`);
+            }
+            const text = readFileSync(file, 'utf8');
+            if (!text.includes('<svg')) {
+              throw new Error(`${file} is not SVG`);
+            }
+            if (!text.includes('github-profile.sh')) {
+              throw new Error(`${file} missing github-profile.sh`);
+            }
+            if (/<script|javascript:/i.test(text)) {
+              throw new Error(`${file} must not contain JavaScript`);
+            }
+            return text;
+          }
+
+          const main = readSvg(expected[0]);
+          const languages = readSvg(expected[1]);
+
+          if (main === languages) {
+            throw new Error('multi-output SVGs must not be identical');
+          }
+          if (!main.includes('repos')) {
+            throw new Error(`${expected[0]} should include repos from its config`);
+          }
+          if (main.includes('top languages')) {
+            throw new Error(`${expected[0]} should not include languages`);
+          }
+          if (!languages.includes('top languages')) {
+            throw new Error(`${expected[1]} should include top languages`);
+          }
+          NODE
 
       - name: Upload generated SVGs
         uses: actions/upload-artifact@v7
         with:
-          name: github-profile-sh-e2e
-          path: tmp/e2e/
+          name: github-profile-sh-multi-e2e
+          path: tmp/e2e-multi/
           if-no-files-found: error
